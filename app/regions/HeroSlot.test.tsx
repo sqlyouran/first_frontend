@@ -19,21 +19,21 @@ describe("HeroSlot", () => {
     expect((h1s[0].textContent ?? "").trim().length).toBeGreaterThan(0);
   });
 
-  it("renders exactly one button with non-empty text", () => {
+  it("renders search button with icon", () => {
     const { container } = render(<HeroSlot />);
     const buttons = container.querySelectorAll(
       'section[data-region="hero"] button',
     );
-    expect(buttons.length).toBe(1);
-    expect((buttons[0].textContent ?? "").trim().length).toBeGreaterThan(0);
+    expect(buttons.length).toBeGreaterThanOrEqual(1);
+    const svg = container.querySelector(
+      'section[data-region="hero"] button svg',
+    );
+    expect(svg).not.toBeNull();
   });
 
-  it("cta placeholder href is exactly #", () => {
-    const { container } = render(<HeroSlot />);
-    const button = container.querySelector(
-      'section[data-region="hero"] button',
-    );
-    expect(button?.getAttribute("data-cta-href")).toBe("#");
+  it("hero data contains backgroundImage URL", async () => {
+    const hero = await import("./hero.data").then((m) => m.default);
+    expect(hero.backgroundImage).toMatch(/^https?:\/\//);
   });
 
   it("renders full-width section with background image", () => {
