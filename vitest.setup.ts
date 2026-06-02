@@ -2,6 +2,6 @@ import "@testing-library/jest-dom";
 import { vi } from "vitest";
 
 vi.mock("next/font/google", () => ({
-  Geist: () => ({ variable: "--font-geist-sans" }),
-  Geist_Mono: () => ({ variable: "--font-geist-mono" }),
+  Inter: () => ({ variable: "--font-inter" }),
+  Plus_Jakarta_Sans: () => ({ variable: "--font-plus-jakarta" }),
 }));

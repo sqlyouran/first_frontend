@@ -35,4 +35,29 @@ describe("HeroSlot", () => {
     );
     expect(button?.getAttribute("data-cta-href")).toBe("#");
   });
+
+  it("renders full-width section with background image", () => {
+    const { container } = render(<HeroSlot />);
+    const region = container.querySelector('[data-region="hero"]');
+    const className = region?.className ?? "";
+    expect(className).toMatch(/bg-cover|bg-\[url/);
+  });
+
+  it("renders h1 with large display font size", () => {
+    const { container } = render(<HeroSlot />);
+    const h1 = container.querySelector('section[data-region="hero"] h1');
+    const className = h1?.className ?? "";
+    expect(className).toMatch(/text-5xl|text-6xl|text-7xl/);
+  });
+
+  it("renders search input with non-empty placeholder", () => {
+    const { container } = render(<HeroSlot />);
+    const input = container.querySelector(
+      'section[data-region="hero"] input[type="text"]',
+    );
+    expect(input).not.toBeNull();
+    expect(
+      (input?.getAttribute("placeholder") ?? "").trim().length,
+    ).toBeGreaterThan(0);
+  });
 });
