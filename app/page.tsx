@@ -1,9 +1,17 @@
-import HelloMessage from "./HelloMessage";
-import { fetchFromBackend } from "@/lib/backend";
+import HeroSlot from "./regions/HeroSlot";
+import FeatureNavSlot from "./regions/FeatureNavSlot";
+import CityGridSlot from "./regions/CityGridSlot";
+import HotPostsSlot from "./regions/HotPostsSlot";
+import HotSpotsSlot from "./regions/HotSpotsSlot";
 
-export default async function Home() {
-  const res = await fetchFromBackend("/api/hello");
-  const message = await res.text();
-
-  return <HelloMessage message={message} />;
+export default function Home() {
+  return (
+    <>
+      <HeroSlot />
+      <FeatureNavSlot />
+      <CityGridSlot />
+      <HotPostsSlot />
+      <HotSpotsSlot />
+    </>
+  );
 }
