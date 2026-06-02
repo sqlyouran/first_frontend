@@ -10,32 +10,29 @@ describe("FeatureNavSlot", () => {
     expect(region?.tagName).toBe("SECTION");
   });
 
-  it("renders at least one anchor child", () => {
+  it("renders exactly 4 feature chips", () => {
     const { container } = render(<FeatureNavSlot />);
     const anchors = container.querySelectorAll(
       'section[data-region="feature-nav"] a',
     );
-    expect(anchors.length).toBeGreaterThanOrEqual(1);
+    expect(anchors.length).toBe(4);
   });
 
-  it("every anchor has non-empty textContent", () => {
+  it("each chip contains an SVG icon", () => {
     const { container } = render(<FeatureNavSlot />);
     const anchors = container.querySelectorAll(
       'section[data-region="feature-nav"] a',
     );
     anchors.forEach((a) => {
-      expect((a.textContent ?? "").trim().length).toBeGreaterThan(0);
+      expect(a.querySelector("svg")).not.toBeNull();
     });
   });
 
-  it("every anchor href is exactly #", () => {
+  it("uses responsive grid layout", () => {
     const { container } = render(<FeatureNavSlot />);
-    const anchors = container.querySelectorAll<HTMLAnchorElement>(
-      'section[data-region="feature-nav"] a',
-    );
-    expect(anchors.length).toBeGreaterThanOrEqual(1);
-    anchors.forEach((a) => {
-      expect(a.getAttribute("href")).toBe("#");
-    });
+    const region = container.querySelector('[data-region="feature-nav"]');
+    const grid = region?.querySelector(".grid");
+    expect(grid?.className ?? "").toMatch(/grid-cols-2/);
+    expect(grid?.className ?? "").toMatch(/md:grid-cols-4/);
   });
 });
