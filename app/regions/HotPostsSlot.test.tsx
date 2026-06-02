@@ -10,34 +10,38 @@ describe("HotPostsSlot", () => {
     expect(region).not.toBeNull();
   });
 
-  it("renders at least one anchor with non-empty text", () => {
+  it("renders exactly 3 story cards", () => {
     const { container } = render(<HotPostsSlot />);
     const anchors = container.querySelectorAll(
       '[data-region="hot-posts"] a',
     );
-    expect(anchors.length).toBeGreaterThan(0);
-    anchors.forEach((a) => {
-      expect((a.textContent ?? "").trim().length).toBeGreaterThan(0);
-    });
+    expect(anchors.length).toBe(3);
   });
 
-  it("data file default-export is an array of {label, href}", () => {
-    expect(Array.isArray(items)).toBe(true);
-    expect(items.length).toBeGreaterThan(0);
-    items.forEach((it) => {
-      expect(typeof it.label).toBe("string");
-      expect(typeof it.href).toBe("string");
-    });
-  });
-
-  it("every anchor href is exactly #", () => {
+  it("each card has heading and image container", () => {
     const { container } = render(<HotPostsSlot />);
     const anchors = container.querySelectorAll(
       '[data-region="hot-posts"] a',
     );
-    expect(anchors.length).toBeGreaterThan(0);
     anchors.forEach((a) => {
-      expect(a.getAttribute("href")).toBe("#");
+      expect(a.querySelector("h3")).not.toBeNull();
+    });
+  });
+
+  it("uses storytelling grid layout (3 cols desktop)", () => {
+    const { container } = render(<HotPostsSlot />);
+    const grid = container.querySelector(
+      '[data-region="hot-posts"] .grid',
+    );
+    expect(grid?.className ?? "").toMatch(/grid-cols/);
+    expect(grid?.className ?? "").toMatch(/md:grid-cols-3/);
+  });
+
+  it("data file has 6 items with title and image", () => {
+    expect(items.length).toBe(6);
+    items.forEach((item: { title: string; image: string }) => {
+      expect(typeof item.title).toBe("string");
+      expect(item.image).toMatch(/^https?:\/\//);
     });
   });
 });
