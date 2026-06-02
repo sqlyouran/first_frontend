@@ -1,5 +1,5 @@
 export type AiLauncherContent = { buttonLabel: string };
 
-const aiLauncher: AiLauncherContent = { buttonLabel: "占位 AI 助手" };
+const aiLauncher: AiLauncherContent = { buttonLabel: "Plan with AI" };
 
 export default aiLauncher;
