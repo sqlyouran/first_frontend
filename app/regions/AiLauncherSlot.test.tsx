@@ -32,7 +32,7 @@ describe("AiLauncherSlot", () => {
     expect(button).not.toBeNull();
     await user.click(button!);
     // After click, dialog content should be visible
-    const dialogContent = document.querySelector('[role="dialog"]');
+    const dialogContent = document.querySelector('[data-slot="dialog-content"]');
     expect(dialogContent).not.toBeNull();
   });
 

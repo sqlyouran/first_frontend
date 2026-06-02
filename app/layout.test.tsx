@@ -16,11 +16,11 @@ describe("homepage shell - layout", () => {
     const launcherIdx = html.indexOf('data-region="ai-launcher"');
     expect(launcherIdx).toBeGreaterThan(markerIdx);
 
-    // homepage-ai-launcher: ai-launcher 容器内必须包含恰好 1 个 button + 非空文本
+    // homepage-visual-v1: ai-launcher 容器内 2 个 button（Dialog trigger + Sheet trigger）
     const launcherFragment = html.slice(launcherIdx);
     const buttonOpenCount = (
       launcherFragment.match(/<button(?:\s|>)/g) ?? []
     ).length;
-    expect(buttonOpenCount).toBe(1);
+    expect(buttonOpenCount).toBe(2);
   });
 });
