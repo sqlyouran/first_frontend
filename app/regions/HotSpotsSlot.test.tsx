@@ -10,34 +10,41 @@ describe("HotSpotsSlot", () => {
     expect(region).not.toBeNull();
   });
 
-  it("renders at least one anchor with non-empty text", () => {
+  it("renders exactly 8 spot cards", () => {
     const { container } = render(<HotSpotsSlot />);
-    const anchors = container.querySelectorAll(
-      '[data-region="hot-spots"] a',
+    const cards = container.querySelectorAll(
+      '[data-region="hot-spots"] .overflow-x-auto > a',
     );
-    expect(anchors.length).toBeGreaterThan(0);
-    anchors.forEach((a) => {
-      expect((a.textContent ?? "").trim().length).toBeGreaterThan(0);
+    expect(cards.length).toBe(8);
+  });
+
+  it("each card has heading and tag badges", () => {
+    const { container } = render(<HotSpotsSlot />);
+    const cards = container.querySelectorAll(
+      '[data-region="hot-spots"] .overflow-x-auto > a',
+    );
+    cards.forEach((a) => {
+      expect(a.querySelector("h3")).not.toBeNull();
+      // badge elements (at least 1 per card)
+      expect(a.querySelectorAll("span").length).toBeGreaterThanOrEqual(1);
     });
   });
 
-  it("data file default-export is an array of {label, href}", () => {
-    expect(Array.isArray(items)).toBe(true);
-    expect(items.length).toBeGreaterThan(0);
-    items.forEach((it) => {
-      expect(typeof it.label).toBe("string");
-      expect(typeof it.href).toBe("string");
-    });
+  it("uses horizontal scroll on mobile", () => {
+    const { container } = render(<HotSpotsSlot />);
+    const scrollContainer = container.querySelector(
+      '[data-region="hot-spots"] .overflow-x-auto',
+    );
+    expect(scrollContainer).not.toBeNull();
+    expect(scrollContainer?.className ?? "").toMatch(/overflow-x-auto/);
   });
 
-  it("every anchor href is exactly #", () => {
-    const { container } = render(<HotSpotsSlot />);
-    const anchors = container.querySelectorAll(
-      '[data-region="hot-spots"] a',
-    );
-    expect(anchors.length).toBeGreaterThan(0);
-    anchors.forEach((a) => {
-      expect(a.getAttribute("href")).toBe("#");
+  it("data file has 8 items with tags array", () => {
+    expect(items.length).toBe(8);
+    items.forEach((item: { name: string; tags: string[]; image: string }) => {
+      expect(Array.isArray(item.tags)).toBe(true);
+      expect(item.tags.length).toBeGreaterThan(0);
+      expect(item.image).toMatch(/^https?:\/\//);
     });
   });
 });
