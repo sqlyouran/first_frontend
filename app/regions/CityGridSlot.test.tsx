@@ -10,25 +10,33 @@ describe("CityGridSlot", () => {
     expect(region?.tagName).toBe("SECTION");
   });
 
-  it("renders at least one anchor child with non-empty text", () => {
+  it("renders exactly 8 city cards", () => {
     const { container } = render(<CityGridSlot />);
     const anchors = container.querySelectorAll(
       'section[data-region="city-grid"] a',
     );
-    expect(anchors.length).toBeGreaterThanOrEqual(1);
+    expect(anchors.length).toBe(8);
+  });
+
+  it("each card has image, heading, and badge", () => {
+    const { container } = render(<CityGridSlot />);
+    const anchors = container.querySelectorAll(
+      'section[data-region="city-grid"] a',
+    );
     anchors.forEach((a) => {
-      expect((a.textContent ?? "").trim().length).toBeGreaterThan(0);
+      expect(a.querySelector("h3")).not.toBeNull();
+      // badge element
+      const spans = a.querySelectorAll("span");
+      expect(spans.length).toBeGreaterThanOrEqual(1);
     });
   });
 
-  it("every anchor href is exactly #", () => {
+  it("uses responsive grid (2 cols mobile, 4 cols desktop)", () => {
     const { container } = render(<CityGridSlot />);
-    const anchors = container.querySelectorAll<HTMLAnchorElement>(
-      'section[data-region="city-grid"] a',
+    const grid = container.querySelector(
+      'section[data-region="city-grid"] .grid',
     );
-    expect(anchors.length).toBeGreaterThanOrEqual(1);
-    anchors.forEach((a) => {
-      expect(a.getAttribute("href")).toBe("#");
-    });
+    expect(grid?.className ?? "").toMatch(/grid-cols-2/);
+    expect(grid?.className ?? "").toMatch(/md:grid-cols-4/);
   });
 });
