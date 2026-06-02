@@ -72,19 +72,43 @@ npm run test:watch   # Vitest watch 模式
 
 新增 Route Handler / Server Action 前必须先开 OpenSpec change（父仓 `/opsx:propose`）。
 
+## 首页骨架
+
+首页（`/`）拆为 6 个 region，骨架阶段仅提供挂载位与命名契约，各 region 内容由后续独立 change 实现：
+
+| Slot | DOM 容器 | 挂载位 | 后续变更 |
+|---|---|---|---|
+| `HeroSlot` | `<section data-region="hero">` | `app/page.tsx` | `homepage-hero` |
+| `FeatureNavSlot` | `<section data-region="feature-nav">` | `app/page.tsx` | `homepage-feature-nav` |
+| `CityGridSlot` | `<section data-region="city-grid">` | `app/page.tsx` | `homepage-city-grid` |
+| `HotPostsSlot` | `<section data-region="hot-posts">` | `app/page.tsx` | `homepage-hot-posts` |
+| `HotSpotsSlot` | `<section data-region="hot-spots">` | `app/page.tsx` | `homepage-hot-spots` |
+| `AiLauncherSlot` | `<div data-region="ai-launcher">` | `app/layout.tsx`（`{children}` 之后） | `homepage-ai-launcher` |
+
+骨架阶段约定（来自 `homepage-shell` 变更）：
+
+- 所有 Slot 均为完全空容器（无子节点 / 无 inline style / 无 className）。区块各自 change 在 Slot 内部填充内容。
+- `app/page.tsx` **不依赖后端** HTTP；后端 8080 未启动时首页仍返回 200 + 6 个 `data-region`。
+- `HelloMessage.tsx` / `HelloMessage.test.tsx` / `lib/backend.ts` 作为 BFF 链路活体探针保留，**首页 UI 不再 import**；SSR 链路覆盖改由 `HelloMessage.test.tsx` 单测保住。
+- AI 助手入口跳推上举至 root layout（D4 trigger：当出现第 2 条不希望渲染助手的路由时，重新 propose 提到路由组布局）。
+
 ## 目录结构
 
 ```
 frontend/
 ├── app/                    App Router 路由（文件即路由）
-│   ├── layout.tsx          根布局
-│   ├── page.tsx            首页（Server Component）
-│   └── HelloMessage.tsx    Client Component（接收 message props）
+│   ├── layout.tsx          根布局（挂载 AiLauncherSlot）
+│   ├── page.tsx            首页（渲染 5 个页内 Slot）
+│   ├── regions/            6 个 region Slot 组件目录
+│   └── HelloMessage.tsx    BFF 链路探针（client component，首页不再 import）
+├── components/ui/          shadcn/ui 生成的原子组件
 ├── lib/
-│   └── backend.ts          server-only BFF helper
+│   ├── backend.ts          server-only BFF helper
+│   └── utils.ts            cn helper (clsx + tailwind-merge)
 ├── public/                 静态资源
 ├── .env.local              本地环境变量（不入仓）
 ├── next.config.ts
+├── tailwind.config.ts
 ├── vitest.config.ts
 └── package.json
 ```
@@ -95,7 +119,7 @@ frontend/
 npm test
 ```
 
-测试栈：Vitest + jsdom + React Testing Library。
+测试栈：Vitest + happy-dom + React Testing Library。
 
 **Server Component 不能直接被 RTL render**（async），统一模式：
 - 把展示逻辑抽成 client component（如 `HelloMessage.tsx`）
