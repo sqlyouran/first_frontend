@@ -29,4 +29,15 @@ describe("HotPostsSlot", () => {
       expect(typeof it.href).toBe("string");
     });
   });
+
+  it("every anchor href is exactly #", () => {
+    const { container } = render(<HotPostsSlot />);
+    const anchors = container.querySelectorAll(
+      '[data-region="hot-posts"] a',
+    );
+    expect(anchors.length).toBeGreaterThan(0);
+    anchors.forEach((a) => {
+      expect(a.getAttribute("href")).toBe("#");
+    });
+  });
 });
