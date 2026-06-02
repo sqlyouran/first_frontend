@@ -85,6 +85,8 @@ npm run test:watch   # Vitest watch 模式
 | `HotSpotsSlot` | `<section data-region="hot-spots">`(包含占位 `<a>`) | `app/page.tsx` | `homepage-hot-spots` ✓ |
 | `AiLauncherSlot` | `<div data-region="ai-launcher">`（包含占位 `<button>`） | `app/layout.tsx`（`{children}` 之后） | `homepage-ai-launcher` ✓ |
 
+**视觉层 v1 已注入**（`homepage-visual-v1` 变更）：6 个 Slot 均已升级为目标产品形态——全幅摄影 Hero / 4 chip 功能导航 / 8 城市卡片 / 攻略 storytelling / 小众景点 carousel / AI 助手 Dialog+Sheet 双形态。技术栈：shadcn/ui + lucide-react + Inter/Plus Jakarta Sans 字体 + 靛青主色。
+
 骨架阶段约定（来自 `homepage-shell` 变更）：
 
 - 所有 Slot 默认为完全空容器（无子节点 / 无 inline style / 无 className）。各区块各自 change 在 Slot 内部填充内容。
