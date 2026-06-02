@@ -83,7 +83,7 @@ npm run test:watch   # Vitest watch 模式
 | `CityGridSlot` | `<section data-region="city-grid">`（包含占位 `<a>`） | `app/page.tsx` | `homepage-city-grid` ✓ |
 | `HotPostsSlot` | `<section data-region="hot-posts">`(包含占位 `<a>`) | `app/page.tsx` | `homepage-hot-posts` ✓ |
 | `HotSpotsSlot` | `<section data-region="hot-spots">`(包含占位 `<a>`) | `app/page.tsx` | `homepage-hot-spots` ✓ |
-| `AiLauncherSlot` | `<div data-region="ai-launcher">` | `app/layout.tsx`（`{children}` 之后） | `homepage-ai-launcher` |
+| `AiLauncherSlot` | `<div data-region="ai-launcher">`（包含占位 `<button>`） | `app/layout.tsx`（`{children}` 之后） | `homepage-ai-launcher` ✓ |
 
 骨架阶段约定（来自 `homepage-shell` 变更）：
 
@@ -93,6 +93,7 @@ npm run test:watch   # Vitest watch 模式
   - `homepage-city-grid` 已解除 `CityGridSlot` 的空容器约束，现渲染硬编码 `cityGrid.data.ts` 中的占位 `<a>`。
   - `homepage-hot-posts` 已解除 `HotPostsSlot` 的空容器约束，现渲染硬编码 `hotPosts.data.ts` 中的占位 `<a>`。
   - `homepage-hot-spots` 已解除 `HotSpotsSlot` 的空容器约束，现渲染硬编码 `hotSpots.data.ts` 中的占位 `<a>`。
+  - `homepage-ai-launcher` 已解除 `AiLauncherSlot` 的空容器约束，现渲染硬编码 `aiLauncher.data.ts` 中的占位 `<button>`（无 onClick）。骨架阶段 6 个 region 全部完成。
 - `app/page.tsx` **不依赖后端** HTTP；后端 8080 未启动时首页仍返回 200 + 6 个 `data-region`。
 - `HelloMessage.tsx` / `HelloMessage.test.tsx` / `lib/backend.ts` 作为 BFF 链路活体探针保留，**首页 UI 不再 import**；SSR 链路覆盖改由 `HelloMessage.test.tsx` 单测保住。
 - AI 助手入口跳推上举至 root layout（D4 trigger：当出现第 2 条不希望渲染助手的路由时，重新 propose 提到路由组布局）。
