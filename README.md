@@ -78,7 +78,7 @@ npm run test:watch   # Vitest watch 模式
 
 | Slot | DOM 容器 | 挂载位 | 后续变更 |
 |---|---|---|---|
-| `HeroSlot` | `<section data-region="hero">` | `app/page.tsx` | `homepage-hero` |
+| `HeroSlot` | `<section data-region="hero">`（包含 `<h1>` + `<button>`） | `app/page.tsx` | `homepage-hero` ✓ |
 | `FeatureNavSlot` | `<section data-region="feature-nav">`（包含占位 `<a>`） | `app/page.tsx` | `homepage-feature-nav` ✓ |
 | `CityGridSlot` | `<section data-region="city-grid">` | `app/page.tsx` | `homepage-city-grid` |
 | `HotPostsSlot` | `<section data-region="hot-posts">` | `app/page.tsx` | `homepage-hot-posts` |
@@ -89,6 +89,7 @@ npm run test:watch   # Vitest watch 模式
 
 - 所有 Slot 默认为完全空容器（无子节点 / 无 inline style / 无 className）。各区块各自 change 在 Slot 内部填充内容。
   - `homepage-feature-nav` 已解除 `FeatureNavSlot` 的空容器约束，现渲染硬编码 `featureNav.data.ts` 中的占位 `<a>`。
+  - `homepage-hero` 已解除 `HeroSlot` 的空容器约束，现渲染硬编码 `hero.data.ts` 中的 `<h1>` 标题与 `<button>` CTA（`data-cta-href="#"` 占位）。
 - `app/page.tsx` **不依赖后端** HTTP；后端 8080 未启动时首页仍返回 200 + 6 个 `data-region`。
 - `HelloMessage.tsx` / `HelloMessage.test.tsx` / `lib/backend.ts` 作为 BFF 链路活体探针保留，**首页 UI 不再 import**；SSR 链路覆盖改由 `HelloMessage.test.tsx` 单测保住。
 - AI 助手入口跳推上举至 root layout（D4 trigger：当出现第 2 条不希望渲染助手的路由时，重新 propose 提到路由组布局）。
