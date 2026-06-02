@@ -27,4 +27,12 @@ describe("HeroSlot", () => {
     expect(buttons.length).toBe(1);
     expect((buttons[0].textContent ?? "").trim().length).toBeGreaterThan(0);
   });
+
+  it("cta placeholder href is exactly #", () => {
+    const { container } = render(<HeroSlot />);
+    const button = container.querySelector(
+      'section[data-region="hero"] button',
+    );
+    expect(button?.getAttribute("data-cta-href")).toBe("#");
+  });
 });
