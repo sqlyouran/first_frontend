@@ -27,4 +27,15 @@ describe("FeatureNavSlot", () => {
       expect((a.textContent ?? "").trim().length).toBeGreaterThan(0);
     });
   });
+
+  it("every anchor href is exactly #", () => {
+    const { container } = render(<FeatureNavSlot />);
+    const anchors = container.querySelectorAll<HTMLAnchorElement>(
+      'section[data-region="feature-nav"] a',
+    );
+    expect(anchors.length).toBeGreaterThanOrEqual(1);
+    anchors.forEach((a) => {
+      expect(a.getAttribute("href")).toBe("#");
+    });
+  });
 });
