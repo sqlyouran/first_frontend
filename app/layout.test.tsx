@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { renderToString } from "react-dom/server";
+import { readFileSync } from "fs";
+import { join } from "path";
 import RootLayout from "./layout";
 
 describe("homepage shell - layout", () => {
@@ -22,5 +24,30 @@ describe("homepage shell - layout", () => {
       launcherFragment.match(/<button(?:\s|>)/g) ?? []
     ).length;
     expect(buttonOpenCount).toBe(2);
+  });
+
+  it("globals.css defines --color-brand: #1d4ed8", () => {
+    const css = readFileSync(join(__dirname, "globals.css"), "utf-8");
+    expect(css).toMatch(/--color-brand:\s*#1d4ed8/);
+  });
+
+  it("globals.css maps --primary to indigo oklch value", () => {
+    const css = readFileSync(join(__dirname, "globals.css"), "utf-8");
+    expect(css).toMatch(/--primary:[\s\S]*oklch\(0\.488 0\.243 264\.376\)/);
+  });
+
+  it("layout.tsx imports Inter and Plus_Jakarta_Sans fonts", () => {
+    const src = readFileSync(join(__dirname, "layout.tsx"), "utf-8");
+    expect(src).toMatch(/Inter/);
+    expect(src).toMatch(/Plus_Jakarta_Sans/);
+  });
+
+  it("globals.css defines section[data-region] spacing: 64px mobile / 96px desktop", () => {
+    const css = readFileSync(join(__dirname, "globals.css"), "utf-8");
+    expect(css).toMatch(/section\[data-region\]/);
+    expect(css).toMatch(/--spacing-section:\s*96px/);
+    expect(css).toMatch(/--spacing-section-mobile:\s*64px/);
+    expect(css).toMatch(/padding-block:\s*var\(--spacing-section-mobile\)/);
+    expect(css).toMatch(/padding-block:\s*var\(--spacing-section\)/);
   });
 });

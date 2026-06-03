@@ -5,10 +5,10 @@ export type FeatureNavItem = {
 };
 
 const featureNavItems: readonly FeatureNavItem[] = [
-  { label: "Cities", href: "#cities", icon: "MapPin" },
-  { label: "Stories", href: "#stories", icon: "BookOpen" },
-  { label: "Hidden Spots", href: "#spots", icon: "Compass" },
-  { label: "Plan with AI", href: "#ai", icon: "Sparkles" },
+  { label: "Cities", href: "#", icon: "MapPin" },
+  { label: "Stories", href: "#", icon: "BookOpen" },
+  { label: "Hidden Spots", href: "#", icon: "Compass" },
+  { label: "Plan with AI", href: "#", icon: "Sparkles" },
 ];
 
 export default featureNavItems;

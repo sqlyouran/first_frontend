@@ -1,6 +1,9 @@
 import { describe, it, expect } from "vitest";
 import { render } from "@testing-library/react";
+import { readFileSync } from "fs";
+import { join } from "path";
 import CityGridSlot from "./CityGridSlot";
+import items from "./cityGrid.data";
 
 describe("CityGridSlot", () => {
   it("renders region container with data-region=city-grid", () => {
@@ -18,14 +21,27 @@ describe("CityGridSlot", () => {
     expect(anchors.length).toBe(8);
   });
 
-  it("each card has image, heading, and badge", () => {
+  it("all anchors have href === #", () => {
     const { container } = render(<CityGridSlot />);
     const anchors = container.querySelectorAll(
       'section[data-region="city-grid"] a',
     );
     anchors.forEach((a) => {
+      expect(a.getAttribute("href")).toBe("#");
+    });
+  });
+
+  it("each card has image container, heading, and badge", () => {
+    const { container } = render(<CityGridSlot />);
+    const anchors = container.querySelectorAll(
+      'section[data-region="city-grid"] a',
+    );
+    anchors.forEach((a) => {
+      // image container with aspect ratio and bg-cover
+      const imgContainer = a.querySelector('[class*="aspect-"][class*="bg-cover"]');
+      expect(imgContainer).not.toBeNull();
       expect(a.querySelector("h3")).not.toBeNull();
-      // badge element
+      // badge element (span with season text)
       const spans = a.querySelectorAll("span");
       expect(spans.length).toBeGreaterThanOrEqual(1);
     });
@@ -38,5 +54,25 @@ describe("CityGridSlot", () => {
     );
     expect(grid?.className ?? "").toMatch(/grid-cols-2/);
     expect(grid?.className ?? "").toMatch(/md:grid-cols-4/);
+  });
+
+  it("data file has 8 items with bestSeason and image URL", () => {
+    expect(items.length).toBe(8);
+    const validSeasons = ["Spring", "Summer", "Autumn", "Winter"];
+    items.forEach((item: { label: string; bestSeason: string; image: string; href: string }) => {
+      expect(typeof item.label).toBe("string");
+      expect(item.label.trim().length).toBeGreaterThan(0);
+      expect(item.href).toBe("#");
+      expect(validSeasons).toContain(item.bestSeason);
+      expect(item.image).toMatch(/^https:\/\/picsum\.photos\//);
+    });
+  });
+
+  it("CityGridSlot.tsx does not import fetch or lib/backend", () => {
+    const src = readFileSync(
+      join(__dirname, "CityGridSlot.tsx"),
+      "utf-8",
+    );
+    expect(src).not.toMatch(/fetchFromBackend|fetch\(|import.*lib\/backend/);
   });
 });
