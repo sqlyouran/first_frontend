@@ -66,7 +66,7 @@ describe("HotPostsSlot", () => {
       expect(typeof item.title).toBe("string");
       expect(item.title.trim().length).toBeGreaterThan(0);
       expect(item.href).toBe("#");
-      expect(item.image).toMatch(/^https?:\/\//);
+      expect(item.image).toMatch(/^https:\/\/picsum\.photos\//);
     });
   });
 

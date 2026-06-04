@@ -73,7 +73,7 @@ describe("HotSpotsSlot", () => {
       expect(item.href).toBe("#");
       expect(Array.isArray(item.tags)).toBe(true);
       expect(item.tags.length).toBeGreaterThan(0);
-      expect(item.image).toMatch(/^https?:\/\//);
+      expect(item.image).toMatch(/^https:\/\/picsum\.photos\//);
     });
   });
 

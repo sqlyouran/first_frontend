@@ -89,4 +89,24 @@ describe("AiLauncherSlot", () => {
       "ai-launcher placeholder",
     );
   });
+
+  it("mobile Sheet trigger exists and opens sheet on click", async () => {
+    // Spec scenario: 点击打开 Sheet（mobile）
+    const user = userEvent.setup();
+    const { container } = render(<AiLauncherSlot />);
+    // Mobile trigger lives inside .md\:hidden container
+    const mobileDiv = container.querySelector(
+      '[data-region="ai-launcher"] .md\\:hidden',
+    );
+    expect(mobileDiv).not.toBeNull();
+    const mobileButton = mobileDiv!.querySelector("button");
+    expect(mobileButton).not.toBeNull();
+    expect((mobileButton!.textContent ?? "").trim()).toContain("Plan with AI");
+    await user.click(mobileButton!);
+    // After click, sheet content should be visible
+    const sheetContent = document.querySelector('[data-slot="sheet-content"]');
+    expect(sheetContent).not.toBeNull();
+    // Sheet must contain placeholder text
+    expect(sheetContent!.textContent).toMatch(/AI Trip Planner|coming soon/i);
+  });
 });
