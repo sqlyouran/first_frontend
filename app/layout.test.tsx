@@ -1,7 +1,13 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { renderToString } from "react-dom/server";
 import { readFileSync } from "fs";
 import { join } from "path";
+
+// Mock AuthProvider to pass-through children in SSR tests
+vi.mock("@/components/AuthProvider", () => ({
+  AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
 import RootLayout from "./layout";
 
 describe("homepage shell - layout", () => {

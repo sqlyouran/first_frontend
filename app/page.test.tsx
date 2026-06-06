@@ -1,7 +1,13 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { render } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
 import type { ReactElement } from "react";
+
+// Mock AuthProvider to pass-through children in SSR tests
+vi.mock("@/components/AuthProvider", () => ({
+  AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
 import Page from "./page";
 import RootLayout from "./layout";
 
