@@ -31,10 +31,10 @@ describe("LoginPage", () => {
     render(<LoginPage />);
     const user = userEvent.setup();
 
-    await user.click(screen.getByRole("button", { name: "登录" }));
+    await user.click(screen.getByRole("button", { name: "Sign In" }));
 
-    expect(screen.getByText("请输入有效的邮箱地址")).toBeInTheDocument();
-    expect(screen.getByText("请输入密码")).toBeInTheDocument();
+    expect(screen.getByText("Please enter a valid email address")).toBeInTheDocument();
+    expect(screen.getByText("Please enter your password")).toBeInTheDocument();
     expect(loginMock).not.toHaveBeenCalled();
   });
 
@@ -42,11 +42,11 @@ describe("LoginPage", () => {
     render(<LoginPage />);
     const user = userEvent.setup();
 
-    await user.type(screen.getByPlaceholderText("邮箱"), "not-an-email");
-    await user.type(screen.getByPlaceholderText("密码"), "password123");
-    await user.click(screen.getByRole("button", { name: "登录" }));
+    await user.type(screen.getByPlaceholderText("Email address"), "not-an-email");
+    await user.type(screen.getByPlaceholderText("Password"), "password123");
+    await user.click(screen.getByRole("button", { name: "Sign In" }));
 
-    expect(screen.getByText("请输入有效的邮箱地址")).toBeInTheDocument();
+    expect(screen.getByText("Please enter a valid email address")).toBeInTheDocument();
     expect(loginMock).not.toHaveBeenCalled();
   });
 
@@ -55,9 +55,9 @@ describe("LoginPage", () => {
     render(<LoginPage />);
     const user = userEvent.setup();
 
-    await user.type(screen.getByPlaceholderText("邮箱"), "test@example.com");
-    await user.type(screen.getByPlaceholderText("密码"), "password123");
-    await user.click(screen.getByRole("button", { name: "登录" }));
+    await user.type(screen.getByPlaceholderText("Email address"), "test@example.com");
+    await user.type(screen.getByPlaceholderText("Password"), "password123");
+    await user.click(screen.getByRole("button", { name: "Sign In" }));
 
     await waitFor(() => {
       expect(pushMock).toHaveBeenCalledWith("/");
@@ -71,12 +71,12 @@ describe("LoginPage", () => {
     render(<LoginPage />);
     const user = userEvent.setup();
 
-    await user.type(screen.getByPlaceholderText("邮箱"), "wrong@example.com");
-    await user.type(screen.getByPlaceholderText("密码"), "wrongpass");
-    await user.click(screen.getByRole("button", { name: "登录" }));
+    await user.type(screen.getByPlaceholderText("Email address"), "wrong@example.com");
+    await user.type(screen.getByPlaceholderText("Password"), "wrongpass");
+    await user.click(screen.getByRole("button", { name: "Sign In" }));
 
     await waitFor(() => {
-      expect(screen.getByRole("alert")).toHaveTextContent("邮箱或密码错误");
+      expect(screen.getByRole("alert")).toHaveTextContent("Invalid email or password");
     });
   });
 
@@ -86,12 +86,12 @@ describe("LoginPage", () => {
     render(<LoginPage />);
     const user = userEvent.setup();
 
-    await user.type(screen.getByPlaceholderText("邮箱"), "locked@example.com");
-    await user.type(screen.getByPlaceholderText("密码"), "any");
-    await user.click(screen.getByRole("button", { name: "登录" }));
+    await user.type(screen.getByPlaceholderText("Email address"), "locked@example.com");
+    await user.type(screen.getByPlaceholderText("Password"), "any");
+    await user.click(screen.getByRole("button", { name: "Sign In" }));
 
     await waitFor(() => {
-      expect(screen.getByRole("alert")).toHaveTextContent("账户已锁定");
+      expect(screen.getByRole("alert")).toHaveTextContent("Account locked");
     });
   });
 
@@ -100,12 +100,12 @@ describe("LoginPage", () => {
     render(<LoginPage />);
     const user = userEvent.setup();
 
-    await user.type(screen.getByPlaceholderText("邮箱"), "unverified@example.com");
-    await user.type(screen.getByPlaceholderText("密码"), "any");
-    await user.click(screen.getByRole("button", { name: "登录" }));
+    await user.type(screen.getByPlaceholderText("Email address"), "unverified@example.com");
+    await user.type(screen.getByPlaceholderText("Password"), "any");
+    await user.click(screen.getByRole("button", { name: "Sign In" }));
 
     await waitFor(() => {
-      expect(screen.getByRole("alert")).toHaveTextContent("邮箱未验证");
+      expect(screen.getByRole("alert")).toHaveTextContent("Email not verified");
     });
   });
 
@@ -114,12 +114,12 @@ describe("LoginPage", () => {
     render(<LoginPage />);
     const user = userEvent.setup();
 
-    await user.type(screen.getByPlaceholderText("邮箱"), "ratelimit@example.com");
-    await user.type(screen.getByPlaceholderText("密码"), "any");
-    await user.click(screen.getByRole("button", { name: "登录" }));
+    await user.type(screen.getByPlaceholderText("Email address"), "ratelimit@example.com");
+    await user.type(screen.getByPlaceholderText("Password"), "any");
+    await user.click(screen.getByRole("button", { name: "Sign In" }));
 
     await waitFor(() => {
-      expect(screen.getByRole("alert")).toHaveTextContent("请求过于频繁");
+      expect(screen.getByRole("alert")).toHaveTextContent("Too many requests");
     });
   });
 
@@ -128,12 +128,12 @@ describe("LoginPage", () => {
     render(<LoginPage />);
     const user = userEvent.setup();
 
-    await user.type(screen.getByPlaceholderText("邮箱"), "test@example.com");
-    await user.type(screen.getByPlaceholderText("密码"), "password123");
-    await user.click(screen.getByRole("button", { name: "登录" }));
+    await user.type(screen.getByPlaceholderText("Email address"), "test@example.com");
+    await user.type(screen.getByPlaceholderText("Password"), "password123");
+    await user.click(screen.getByRole("button", { name: "Sign In" }));
 
     await waitFor(() => {
-      expect(screen.getByRole("alert")).toHaveTextContent("网络连接失败");
+      expect(screen.getByRole("alert")).toHaveTextContent("Network error");
     });
   });
 
@@ -142,20 +142,20 @@ describe("LoginPage", () => {
     render(<LoginPage />);
     const user = userEvent.setup();
 
-    await user.type(screen.getByPlaceholderText("邮箱"), "test@example.com");
-    await user.type(screen.getByPlaceholderText("密码"), "password123");
-    await user.click(screen.getByRole("button", { name: "登录" }));
+    await user.type(screen.getByPlaceholderText("Email address"), "test@example.com");
+    await user.type(screen.getByPlaceholderText("Password"), "password123");
+    await user.click(screen.getByRole("button", { name: "Sign In" }));
 
-    expect(screen.getByRole("button", { name: "登录中..." })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Signing in..." })).toBeDisabled();
 
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: "登录" })).not.toBeDisabled();
+      expect(screen.getByRole("button", { name: "Sign In" })).not.toBeDisabled();
     });
   });
 
   it("has a link to register page", () => {
     render(<LoginPage />);
-    const link = screen.getByRole("link", { name: "去注册" });
+    const link = screen.getByRole("link", { name: "Sign up" });
     expect(link).toHaveAttribute("href", "/register");
   });
 });

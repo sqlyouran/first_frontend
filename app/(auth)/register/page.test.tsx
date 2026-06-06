@@ -29,9 +29,9 @@ describe("RegisterPage", () => {
       render(<RegisterPage />);
       const user = userEvent.setup();
 
-      await user.click(screen.getByRole("button", { name: "发送验证码" }));
+      await user.click(screen.getByRole("button", { name: "Send Code" }));
 
-      expect(screen.getByText("请输入有效的邮箱地址")).toBeInTheDocument();
+      expect(screen.getByText("Please enter a valid email address")).toBeInTheDocument();
       expect(sendCodeMock).not.toHaveBeenCalled();
     });
 
@@ -40,13 +40,13 @@ describe("RegisterPage", () => {
       render(<RegisterPage />);
       const user = userEvent.setup();
 
-      await user.type(screen.getByPlaceholderText("邮箱"), "new@example.com");
-      await user.click(screen.getByRole("button", { name: "发送验证码" }));
+      await user.type(screen.getByPlaceholderText("Email address"), "new@example.com");
+      await user.click(screen.getByRole("button", { name: "Send Code" }));
 
       await waitFor(() => {
-        expect(screen.getByPlaceholderText("验证码")).toBeInTheDocument();
+        expect(screen.getByPlaceholderText("Verification code")).toBeInTheDocument();
       });
-      expect(screen.getByText("验证码已发送至 new@example.com")).toBeInTheDocument();
+      expect(screen.getByText("Code sent to new@example.com")).toBeInTheDocument();
     });
 
     it("shows error for 429 (rate limited)", async () => {
@@ -54,11 +54,11 @@ describe("RegisterPage", () => {
       render(<RegisterPage />);
       const user = userEvent.setup();
 
-      await user.type(screen.getByPlaceholderText("邮箱"), "test@example.com");
-      await user.click(screen.getByRole("button", { name: "发送验证码" }));
+      await user.type(screen.getByPlaceholderText("Email address"), "test@example.com");
+      await user.click(screen.getByRole("button", { name: "Send Code" }));
 
       await waitFor(() => {
-        expect(screen.getByRole("alert")).toHaveTextContent("请求过于频繁");
+        expect(screen.getByRole("alert")).toHaveTextContent("Too many requests");
       });
     });
 
@@ -67,11 +67,11 @@ describe("RegisterPage", () => {
       render(<RegisterPage />);
       const user = userEvent.setup();
 
-      await user.type(screen.getByPlaceholderText("邮箱"), "test@example.com");
-      await user.click(screen.getByRole("button", { name: "发送验证码" }));
+      await user.type(screen.getByPlaceholderText("Email address"), "test@example.com");
+      await user.click(screen.getByRole("button", { name: "Send Code" }));
 
       await waitFor(() => {
-        expect(screen.getByRole("alert")).toHaveTextContent("网络连接失败");
+        expect(screen.getByRole("alert")).toHaveTextContent("Network error");
       });
     });
 
@@ -80,11 +80,11 @@ describe("RegisterPage", () => {
       render(<RegisterPage />);
       const user = userEvent.setup();
 
-      await user.type(screen.getByPlaceholderText("邮箱"), "test@example.com");
-      await user.click(screen.getByRole("button", { name: "发送验证码" }));
+      await user.type(screen.getByPlaceholderText("Email address"), "test@example.com");
+      await user.click(screen.getByRole("button", { name: "Send Code" }));
 
       await waitFor(() => {
-        expect(screen.getByRole("alert")).toHaveTextContent("服务暂时不可用");
+        expect(screen.getByRole("alert")).toHaveTextContent("Service temporarily unavailable");
       });
     });
 
@@ -93,13 +93,13 @@ describe("RegisterPage", () => {
       render(<RegisterPage />);
       const user = userEvent.setup();
 
-      await user.type(screen.getByPlaceholderText("邮箱"), "test@example.com");
-      await user.click(screen.getByRole("button", { name: "发送验证码" }));
+      await user.type(screen.getByPlaceholderText("Email address"), "test@example.com");
+      await user.click(screen.getByRole("button", { name: "Send Code" }));
 
-      expect(screen.getByRole("button", { name: "发送中..." })).toBeDisabled();
+      expect(screen.getByRole("button", { name: "Sending..." })).toBeDisabled();
 
       await waitFor(() => {
-        expect(screen.getByPlaceholderText("验证码")).toBeInTheDocument();
+        expect(screen.getByPlaceholderText("Verification code")).toBeInTheDocument();
       });
     });
   });
@@ -109,10 +109,10 @@ describe("RegisterPage", () => {
       sendCodeMock.mockResolvedValue({ status: 200 });
       render(<RegisterPage />);
       const user = userEvent.setup();
-      await user.type(screen.getByPlaceholderText("邮箱"), "new@example.com");
-      await user.click(screen.getByRole("button", { name: "发送验证码" }));
+      await user.type(screen.getByPlaceholderText("Email address"), "new@example.com");
+      await user.click(screen.getByRole("button", { name: "Send Code" }));
       await waitFor(() => {
-        expect(screen.getByPlaceholderText("验证码")).toBeInTheDocument();
+        expect(screen.getByPlaceholderText("Verification code")).toBeInTheDocument();
       });
       return user;
     }
@@ -120,21 +120,21 @@ describe("RegisterPage", () => {
     it("shows validation errors for empty fields", async () => {
       const user = await goToStep2();
 
-      await user.click(screen.getByRole("button", { name: "注册" }));
+      await user.click(screen.getByRole("button", { name: "Create Account" }));
 
-      expect(screen.getByText("请输入验证码")).toBeInTheDocument();
-      expect(screen.getByText("密码长度不能少于 8 位")).toBeInTheDocument();
+      expect(screen.getByText("Please enter the verification code")).toBeInTheDocument();
+      expect(screen.getByText("Password must be at least 8 characters")).toBeInTheDocument();
       expect(registerMock).not.toHaveBeenCalled();
     });
 
     it("shows validation error for short password", async () => {
       const user = await goToStep2();
 
-      await user.type(screen.getByPlaceholderText("验证码"), "123456");
-      await user.type(screen.getByPlaceholderText("密码（至少 8 位）"), "short");
-      await user.click(screen.getByRole("button", { name: "注册" }));
+      await user.type(screen.getByPlaceholderText("Verification code"), "123456");
+      await user.type(screen.getByPlaceholderText("Password (min. 8 characters)"), "short");
+      await user.click(screen.getByRole("button", { name: "Create Account" }));
 
-      expect(screen.getByText("密码长度不能少于 8 位")).toBeInTheDocument();
+      expect(screen.getByText("Password must be at least 8 characters")).toBeInTheDocument();
       expect(registerMock).not.toHaveBeenCalled();
     });
 
@@ -142,9 +142,9 @@ describe("RegisterPage", () => {
       registerMock.mockResolvedValue({ status: 201 });
       const user = await goToStep2();
 
-      await user.type(screen.getByPlaceholderText("验证码"), "123456");
-      await user.type(screen.getByPlaceholderText("密码（至少 8 位）"), "password123");
-      await user.click(screen.getByRole("button", { name: "注册" }));
+      await user.type(screen.getByPlaceholderText("Verification code"), "123456");
+      await user.type(screen.getByPlaceholderText("Password (min. 8 characters)"), "password123");
+      await user.click(screen.getByRole("button", { name: "Create Account" }));
 
       await waitFor(() => {
         expect(pushMock).toHaveBeenCalledWith("/login?registered=true");
@@ -155,12 +155,12 @@ describe("RegisterPage", () => {
       registerMock.mockResolvedValue({ status: 400, error: { request_id: "r1", error_code: "invalid_code", message: "Invalid code" } });
       const user = await goToStep2();
 
-      await user.type(screen.getByPlaceholderText("验证码"), "999999");
-      await user.type(screen.getByPlaceholderText("密码（至少 8 位）"), "password123");
-      await user.click(screen.getByRole("button", { name: "注册" }));
+      await user.type(screen.getByPlaceholderText("Verification code"), "999999");
+      await user.type(screen.getByPlaceholderText("Password (min. 8 characters)"), "password123");
+      await user.click(screen.getByRole("button", { name: "Create Account" }));
 
       await waitFor(() => {
-        expect(screen.getByRole("alert")).toHaveTextContent("验证码错误");
+        expect(screen.getByRole("alert")).toHaveTextContent("Invalid code");
       });
     });
 
@@ -168,44 +168,43 @@ describe("RegisterPage", () => {
       registerMock.mockResolvedValue({ status: 400, error: { request_id: "r1", error_code: "expired_code", message: "Expired" } });
       const user = await goToStep2();
 
-      await user.type(screen.getByPlaceholderText("验证码"), "000000");
-      await user.type(screen.getByPlaceholderText("密码（至少 8 位）"), "password123");
-      await user.click(screen.getByRole("button", { name: "注册" }));
+      await user.type(screen.getByPlaceholderText("Verification code"), "000000");
+      await user.type(screen.getByPlaceholderText("Password (min. 8 characters)"), "password123");
+      await user.click(screen.getByRole("button", { name: "Create Account" }));
 
       await waitFor(() => {
-        expect(screen.getByRole("alert")).toHaveTextContent("验证码已过期");
+        expect(screen.getByRole("alert")).toHaveTextContent("Code expired");
       });
-      expect(screen.getByRole("button", { name: "重新发送" })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Resend" })).toBeInTheDocument();
     });
 
     it("shows error for email already registered (409)", async () => {
       registerMock.mockResolvedValue({ status: 409, error: { request_id: "r1", error_code: "email_already_registered", message: "Already registered" } });
       const user = await goToStep2();
 
-      await user.type(screen.getByPlaceholderText("验证码"), "123456");
-      await user.type(screen.getByPlaceholderText("密码（至少 8 位）"), "password123");
-      await user.click(screen.getByRole("button", { name: "注册" }));
+      await user.type(screen.getByPlaceholderText("Verification code"), "123456");
+      await user.type(screen.getByPlaceholderText("Password (min. 8 characters)"), "password123");
+      await user.click(screen.getByRole("button", { name: "Create Account" }));
 
       await waitFor(() => {
-        expect(screen.getByRole("alert")).toHaveTextContent("该邮箱已注册");
+        expect(screen.getByRole("alert")).toHaveTextContent("Email already registered");
       });
-      // Multiple "去登录" links exist (footer + error), check the one inside alert
       const alert = screen.getByRole("alert");
       const link = alert.querySelector("a[href='/login']");
       expect(link).not.toBeNull();
-      expect(link).toHaveTextContent("去登录");
+      expect(link).toHaveTextContent("Sign in");
     });
 
     it("shows error for 429 (rate limited)", async () => {
       registerMock.mockResolvedValue({ status: 429, error: { request_id: "r1", error_code: "rate_limited", message: "Too many" } });
       const user = await goToStep2();
 
-      await user.type(screen.getByPlaceholderText("验证码"), "123456");
-      await user.type(screen.getByPlaceholderText("密码（至少 8 位）"), "password123");
-      await user.click(screen.getByRole("button", { name: "注册" }));
+      await user.type(screen.getByPlaceholderText("Verification code"), "123456");
+      await user.type(screen.getByPlaceholderText("Password (min. 8 characters)"), "password123");
+      await user.click(screen.getByRole("button", { name: "Create Account" }));
 
       await waitFor(() => {
-        expect(screen.getByRole("alert")).toHaveTextContent("请求过于频繁");
+        expect(screen.getByRole("alert")).toHaveTextContent("Too many requests");
       });
     });
 
@@ -213,12 +212,12 @@ describe("RegisterPage", () => {
       registerMock.mockResolvedValue({ status: 0, error: { request_id: "unknown", error_code: "network_error", message: "Network failed" } });
       const user = await goToStep2();
 
-      await user.type(screen.getByPlaceholderText("验证码"), "123456");
-      await user.type(screen.getByPlaceholderText("密码（至少 8 位）"), "password123");
-      await user.click(screen.getByRole("button", { name: "注册" }));
+      await user.type(screen.getByPlaceholderText("Verification code"), "123456");
+      await user.type(screen.getByPlaceholderText("Password (min. 8 characters)"), "password123");
+      await user.click(screen.getByRole("button", { name: "Create Account" }));
 
       await waitFor(() => {
-        expect(screen.getByRole("alert")).toHaveTextContent("网络连接失败");
+        expect(screen.getByRole("alert")).toHaveTextContent("Network error");
       });
     });
 
@@ -226,11 +225,11 @@ describe("RegisterPage", () => {
       registerMock.mockImplementation(() => new Promise((r) => setTimeout(() => r({ status: 201 }), 200)));
       const user = await goToStep2();
 
-      await user.type(screen.getByPlaceholderText("验证码"), "123456");
-      await user.type(screen.getByPlaceholderText("密码（至少 8 位）"), "password123");
-      await user.click(screen.getByRole("button", { name: "注册" }));
+      await user.type(screen.getByPlaceholderText("Verification code"), "123456");
+      await user.type(screen.getByPlaceholderText("Password (min. 8 characters)"), "password123");
+      await user.click(screen.getByRole("button", { name: "Create Account" }));
 
-      expect(screen.getByRole("button", { name: "注册中..." })).toBeDisabled();
+      expect(screen.getByRole("button", { name: "Creating account..." })).toBeDisabled();
 
       await waitFor(() => {
         expect(pushMock).toHaveBeenCalled();
@@ -240,7 +239,7 @@ describe("RegisterPage", () => {
 
   it("has a link to login page", () => {
     render(<RegisterPage />);
-    const link = screen.getByRole("link", { name: "去登录" });
+    const link = screen.getByRole("link", { name: "Sign in" });
     expect(link).toHaveAttribute("href", "/login");
   });
 });

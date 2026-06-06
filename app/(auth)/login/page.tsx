@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { login } from "@/lib/api/auth";
 import { useAuthStore } from "@/lib/stores/auth";
 
@@ -23,10 +22,10 @@ export default function LoginPage() {
   function validate(): boolean {
     const newErrors: { email?: string; password?: string } = {};
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = "请输入有效的邮箱地址";
+      newErrors.email = "Please enter a valid email address";
     }
     if (!password) {
-      newErrors.password = "请输入密码";
+      newErrors.password = "Please enter your password";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -52,26 +51,26 @@ export default function LoginPage() {
       const errorCode = res.error?.error_code;
 
       if (errorCode === "network_error") {
-        setServerError("网络连接失败，请检查网络后重试");
+        setServerError("Network error. Please check your connection");
       } else if (errorCode === "server_error") {
-        setServerError("服务暂时不可用，请稍后重试");
+        setServerError("Service temporarily unavailable. Please try again later");
       } else if (res.status === 401) {
-        setServerError("邮箱或密码错误");
+        setServerError("Invalid email or password");
       } else if (res.status === 423) {
         const details = res.error?.details;
         const lockedUntil = details?.locked_until;
         if (lockedUntil) {
           const time = new Date(lockedUntil).toLocaleTimeString();
-          setServerError(`账户已锁定，请于 ${time} 后重试`);
+          setServerError(`Account locked. Please try again after ${time}`);
         } else {
-          setServerError("账户已锁定，请稍后重试");
+          setServerError("Account locked. Please try again later");
         }
       } else if (res.status === 403) {
-        setServerError("邮箱未验证，请先完成验证");
+        setServerError("Email not verified. Please verify your email first");
       } else if (res.status === 429) {
-        setServerError("请求过于频繁，请稍后重试");
+        setServerError("Too many requests. Please try again later");
       } else {
-        setServerError("服务暂时不可用，请稍后重试");
+        setServerError("Service temporarily unavailable. Please try again later");
       }
     } finally {
       setLoading(false);
@@ -79,55 +78,50 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>登录</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div>
-              <Input
-                type="text"
-                inputMode="email"
-                placeholder="邮箱"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                aria-invalid={!!errors.email}
-              />
-              {errors.email && (
-                <p className="mt-1 text-sm text-destructive">{errors.email}</p>
-              )}
-            </div>
-            <div>
-              <Input
-                type="password"
-                placeholder="密码"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                aria-invalid={!!errors.password}
-              />
-              {errors.password && (
-                <p className="mt-1 text-sm text-destructive">{errors.password}</p>
-              )}
-            </div>
-            {serverError && (
-              <p className="text-sm text-destructive" role="alert">{serverError}</p>
-            )}
-            <Button type="submit" disabled={loading}>
-              {loading ? "登录中..." : "登录"}
-            </Button>
-          </form>
-        </CardContent>
-        <CardFooter className="justify-center">
-          <p className="text-sm text-muted-foreground">
-            没有账号？
-            <Link href="/register" className="text-primary underline underline-offset-4">
-              去注册
-            </Link>
-          </p>
-        </CardFooter>
-      </Card>
+    <div className="w-full max-w-md">
+      <h1 className="mb-2 font-heading text-3xl font-bold text-slate-900">
+        Your journey begins here
+      </h1>
+      <p className="mb-8 text-muted-foreground">Sign in to your account</p>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <div>
+          <Input
+            type="text"
+            inputMode="email"
+            placeholder="Email address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            aria-invalid={!!errors.email}
+          />
+          {errors.email && (
+            <p className="mt-1 text-sm text-destructive">{errors.email}</p>
+          )}
+        </div>
+        <div>
+          <Input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            aria-invalid={!!errors.password}
+          />
+          {errors.password && (
+            <p className="mt-1 text-sm text-destructive">{errors.password}</p>
+          )}
+        </div>
+        {serverError && (
+          <p className="text-sm text-destructive" role="alert">{serverError}</p>
+        )}
+        <Button type="submit" disabled={loading} className="w-full">
+          {loading ? "Signing in..." : "Sign In"}
+        </Button>
+      </form>
+      <p className="mt-6 text-center text-sm text-muted-foreground">
+        Don&apos;t have an account?{" "}
+        <Link href="/register" className="text-primary underline underline-offset-4">
+          Sign up
+        </Link>
+      </p>
     </div>
   );
 }
