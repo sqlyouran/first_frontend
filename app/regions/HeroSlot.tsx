@@ -7,7 +7,7 @@ export default function HeroSlot() {
   return (
     <section
       data-region="hero"
-      className="relative h-[600px] bg-cover bg-center"
+      className="relative h-[600px] bg-cover bg-center bg-slate-800"
       style={{ backgroundImage: `url(${hero.backgroundImage})` }}
     >
       <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent" />

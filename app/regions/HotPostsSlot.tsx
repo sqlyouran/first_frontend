@@ -15,8 +15,9 @@ export default function HotPostsSlot() {
           <a href={featured.href} className="md:col-span-2">
             <Card className="h-full overflow-hidden transition-shadow hover:shadow-lg">
               <div
-                className="aspect-[16/9] bg-cover bg-center"
+                className="aspect-[16/9] bg-cover bg-center bg-slate-100"
                 style={{ backgroundImage: `url(${featured.image})` }}
+                aria-hidden="true"
               />
               <div className="p-6">
                 <h3 className="mb-2 text-2xl font-bold text-slate-900">
@@ -36,8 +37,9 @@ export default function HotPostsSlot() {
                 <Card className="overflow-hidden transition-shadow hover:shadow-lg">
                   <div className="flex gap-4 p-4">
                     <div
-                      className="h-24 w-24 flex-shrink-0 rounded bg-cover bg-center"
+                      className="h-24 w-24 flex-shrink-0 rounded bg-cover bg-center bg-slate-100"
                       style={{ backgroundImage: `url(${item.image})` }}
+                      aria-hidden="true"
                     />
                     <div>
                       <h3 className="mb-1 text-lg font-semibold text-slate-900">

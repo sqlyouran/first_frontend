@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const AUTH_PAGES = ["/login", "/register"];
+const PROTECTED_PAGES = ["/posts/create"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -12,8 +13,8 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  // Not logged in → redirect to login for protected routes
-  if (!hasRefreshToken && !AUTH_PAGES.some((p) => pathname.startsWith(p))) {
+  // Not logged in → redirect to login for protected pages only
+  if (!hasRefreshToken && PROTECTED_PAGES.some((p) => pathname.startsWith(p))) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 

@@ -26,8 +26,9 @@ export default function HotSpotsSlot() {
             >
               <Card className="overflow-hidden transition-shadow hover:shadow-lg">
                 <div
-                  className="aspect-[4/3] bg-cover bg-center"
+                  className="aspect-[4/3] bg-cover bg-center bg-slate-100"
                   style={{ backgroundImage: `url(${item.image})` }}
+                  aria-hidden="true"
                 />
                 <div className="p-4">
                   <h3 className="mb-1 text-lg font-semibold text-slate-900">
