@@ -5,6 +5,10 @@ import { fetchFromBackend } from "@/lib/backend";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import MarkdownRenderer from "./_components/MarkdownRenderer";
+import VoteButtons from "../_components/VoteButtons";
+import BookmarkButton from "../_components/BookmarkButton";
+import CommentSection from "../_components/CommentSection";
+import type { VoteStatsData } from "@/lib/api/interactions";
 
 interface PostDetail {
   id: string;
@@ -25,17 +29,29 @@ interface PostDetailPageProps {
 
 export default async function PostDetailPage({ params }: PostDetailPageProps) {
   const { id } = await params;
-  const res = await fetchFromBackend(`/api/posts/${id}`);
 
-  if (res.status === 404) {
+  const [postRes, voteStatsRes, bookmarkStatusRes] = await Promise.all([
+    fetchFromBackend(`/api/posts/${id}`),
+    fetchFromBackend(`/api/posts/${id}/vote-stats`),
+    fetchFromBackend(`/api/posts/${id}/bookmark-status`),
+  ]);
+
+  if (postRes.status === 404 || !postRes.ok) {
     notFound();
   }
 
-  if (!res.ok) {
-    notFound();
+  const post: PostDetail = await postRes.json();
+
+  let initialVoteStats: VoteStatsData | undefined;
+  if (voteStatsRes.ok) {
+    initialVoteStats = await voteStatsRes.json();
   }
 
-  const post: PostDetail = await res.json();
+  let initialBookmarked = false;
+  if (bookmarkStatusRes.ok) {
+    const bookmarkData = await bookmarkStatusRes.json();
+    initialBookmarked = bookmarkData.bookmarked ?? false;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
@@ -102,6 +118,20 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
           <MarkdownRenderer content={post.content} />
         </div>
       </Card>
+
+      {/* Interaction bar */}
+      <div className="mt-6 flex items-center justify-between border-y border-slate-200 py-4">
+        <VoteButtons
+          postId={id}
+          initialVoteStats={initialVoteStats ?? { request_id: "", up_count: 0, down_count: 0, user_vote: null }}
+        />
+        <BookmarkButton postId={id} initialBookmarked={initialBookmarked} />
+      </div>
+
+      {/* Comment section */}
+      <div className="mt-8">
+        <CommentSection postId={id} />
+      </div>
     </article>
     </div>
   );

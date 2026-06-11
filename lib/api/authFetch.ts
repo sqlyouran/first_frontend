@@ -12,10 +12,13 @@ async function doRefresh(): Promise<string | null> {
     useAuthStore.getState().setToken(newToken);
     return newToken;
   }
-  // refresh failed
+  // refresh failed — backend already cleared the stale cookie
   useAuthStore.getState().clearAuth();
   if (typeof window !== "undefined") {
-    window.location.href = "/login";
+    const path = window.location?.pathname ?? "";
+    if (!path.startsWith("/login")) {
+      window.location.href = "/login";
+    }
   }
   return null;
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "sonner";
 import AiLauncherSlot from "./regions/AiLauncherSlot";
 import { AuthProvider } from "@/components/AuthProvider";
 
@@ -31,6 +32,7 @@ export default function RootLayout({
         <AuthProvider>
           {children}
         </AuthProvider>
+        <Toaster position="top-right" richColors />
         <AiLauncherSlot />
       </body>
     </html>
