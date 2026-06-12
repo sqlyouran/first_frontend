@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MapPin } from "lucide-react";
+import { MapPin, ThumbsUp, MessageCircle, Bookmark } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import type { PostListItem } from "@/lib/api/posts";
@@ -7,6 +7,17 @@ import type { PostListItem } from "@/lib/api/posts";
 interface PostCardProps {
   post: PostListItem;
 }
+
+export function formatCount(n: number): string | null {
+  if (n === 0) return null;
+  if (n < 1000) return String(n);
+  if (n < 10000) {
+    const k = n / 1000;
+    return k % 1 === 0 ? `${k}k` : `${Math.floor(k * 10) / 10}k`;
+  }
+  return `${Math.floor(n / 1000)}k`;
+}
+
 
 export function PostCard({ post }: PostCardProps) {
   return (
@@ -51,8 +62,26 @@ export function PostCard({ post }: PostCardProps) {
             </div>
           )}
 
+          {/* Interaction stats: upvote & comment always shown */}
+          <div className="mt-3 flex items-center gap-4 text-sm text-slate-500">
+            <span className="flex items-center gap-1">
+              <ThumbsUp className="h-3.5 w-3.5" />
+              {formatCount(post.up_vote_count) ?? "0"}
+            </span>
+            <span className="flex items-center gap-1">
+              <MessageCircle className="h-3.5 w-3.5" />
+              {formatCount(post.comment_count) ?? "0"}
+            </span>
+            {post.bookmark_count > 0 && (
+              <span className="flex items-center gap-1">
+                <Bookmark className="h-3.5 w-3.5" />
+                {formatCount(post.bookmark_count)}
+              </span>
+            )}
+          </div>
+
           {/* Meta */}
-          <p className="mt-4 text-sm text-slate-400">
+          <p className="mt-3 text-sm text-slate-400">
             {new Date(post.created_at).toLocaleDateString("zh-CN", {
               year: "numeric",
               month: "short",

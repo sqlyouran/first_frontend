@@ -104,23 +104,47 @@ describe("posts API", () => {
   });
 
   describe("fetchPosts", () => {
-    it("sends GET /api/posts with pagination", async () => {
-      const listData = { items: [], total: 0, page: 2, size: 10, request_id: "r1" };
+    it("sends GET /api/posts with pagination and sort", async () => {
+      const listData = { items: [], total: 0, page: 2, size: 10, next_cursor: null, has_more: false, request_id: "r1" };
       vi.mocked(global.fetch).mockResolvedValue(
         new Response(JSON.stringify(listData), { status: 200 })
       );
 
-      const result = await fetchPosts(2, 10);
+      const result = await fetchPosts({ page: 2, size: 10 });
 
       expect(result.status).toBe(200);
       expect(result.data?.page).toBe(2);
-      expect(global.fetch).toHaveBeenCalledWith("/api/posts?page=2&size=10");
+      expect(global.fetch).toHaveBeenCalledWith("/api/posts?size=10&sort=latest&page=2");
+    });
+
+    it("sends GET /api/posts with sort parameter", async () => {
+      const listData = { items: [], total: 0, page: 1, size: 20, next_cursor: null, has_more: false, request_id: "r1" };
+      vi.mocked(global.fetch).mockResolvedValue(
+        new Response(JSON.stringify(listData), { status: 200 })
+      );
+
+      const result = await fetchPosts({ sort: "most_upvoted" });
+
+      expect(result.status).toBe(200);
+      expect(global.fetch).toHaveBeenCalledWith("/api/posts?size=20&sort=most_upvoted&page=1");
+    });
+
+    it("sends GET /api/posts with cursor (no page param)", async () => {
+      const listData = { items: [], total: 0, page: null, size: 20, next_cursor: "2025-01-01T00:00:00Z", has_more: true, request_id: "r1" };
+      vi.mocked(global.fetch).mockResolvedValue(
+        new Response(JSON.stringify(listData), { status: 200 })
+      );
+
+      const result = await fetchPosts({ cursor: "2025-01-01T00:00:00Z" });
+
+      expect(result.status).toBe(200);
+      expect(global.fetch).toHaveBeenCalledWith("/api/posts?size=20&sort=latest&cursor=2025-01-01T00%3A00%3A00Z");
     });
   });
 
   describe("fetchUserPosts", () => {
-    it("sends GET /api/users/{userId}/posts", async () => {
-      const listData = { items: [], total: 0, page: 1, size: 20, request_id: "r1" };
+    it("sends GET /api/users/{userId}/posts with sort", async () => {
+      const listData = { items: [], total: 0, page: 1, size: 20, next_cursor: null, has_more: false, request_id: "r1" };
       vi.mocked(global.fetch).mockResolvedValue(
         new Response(JSON.stringify(listData), { status: 200 })
       );
@@ -128,7 +152,7 @@ describe("posts API", () => {
       const result = await fetchUserPosts("u1");
 
       expect(result.status).toBe(200);
-      expect(global.fetch).toHaveBeenCalledWith("/api/users/u1/posts?page=1&size=20");
+      expect(global.fetch).toHaveBeenCalledWith("/api/users/u1/posts?size=20&sort=latest&page=1");
     });
   });
 });

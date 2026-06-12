@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import PostsListPage from "./page";
 import * as postsApi from "@/lib/api/posts";
 
@@ -14,6 +13,17 @@ vi.mock("next/link", () => ({
   ),
 }));
 
+// IntersectionObserver polyfill for jsdom
+class MockIntersectionObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+Object.defineProperty(window, "IntersectionObserver", {
+  writable: true,
+  value: MockIntersectionObserver,
+});
+
 const fetchPostsMock = vi.mocked(postsApi.fetchPosts);
 
 describe("PostsListPage", () => {
@@ -24,7 +34,7 @@ describe("PostsListPage", () => {
   it("renders empty state when no posts", async () => {
     fetchPostsMock.mockResolvedValue({
       status: 200,
-      data: { items: [], total: 0, page: 1, size: 20, request_id: "r1" },
+      data: { items: [], total: 0, page: 1, size: 20, next_cursor: null, has_more: false, request_id: "r1" },
     });
 
     render(<PostsListPage />);
@@ -48,12 +58,17 @@ describe("PostsListPage", () => {
             author_id: "u1",
             created_at: "2024-01-01T00:00:00Z",
             updated_at: "2024-01-01T00:00:00Z",
+            comment_count: 0,
+            up_vote_count: 0,
+            bookmark_count: 0,
             request_id: "r1",
           },
         ],
         total: 1,
         page: 1,
         size: 20,
+        next_cursor: "2024-01-01T00:00:00Z",
+        has_more: false,
         request_id: "r1",
       },
     });
@@ -68,7 +83,7 @@ describe("PostsListPage", () => {
   it("has link to create post", async () => {
     fetchPostsMock.mockResolvedValue({
       status: 200,
-      data: { items: [], total: 0, page: 1, size: 20, request_id: "r1" },
+      data: { items: [], total: 0, page: 1, size: 20, next_cursor: null, has_more: false, request_id: "r1" },
     });
 
     render(<PostsListPage />);
@@ -76,6 +91,57 @@ describe("PostsListPage", () => {
     await waitFor(() => {
       const createLink = screen.getByRole("link", { name: /发布/ });
       expect(createLink).toHaveAttribute("href", "/posts/create");
+    });
+  });
+
+  it("renders sort tabs: 最新, 最热, 最多讨论", async () => {
+    fetchPostsMock.mockResolvedValue({
+      status: 200,
+      data: { items: [], total: 0, page: 1, size: 20, next_cursor: null, has_more: false, request_id: "r1" },
+    });
+
+    render(<PostsListPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText("最新")).toBeInTheDocument();
+      expect(screen.getByText("最热")).toBeInTheDocument();
+      expect(screen.getByText("最多讨论")).toBeInTheDocument();
+    });
+  });
+
+  it("shows end-of-list message when no more items", async () => {
+    fetchPostsMock.mockResolvedValue({
+      status: 200,
+      data: {
+        items: [
+          {
+            id: "p1",
+            title: "Only Post",
+            cover_image: null,
+            tags: [],
+            status: "published",
+            author_id: "u1",
+            created_at: "2024-01-01T00:00:00Z",
+            updated_at: "2024-01-01T00:00:00Z",
+            comment_count: 0,
+            up_vote_count: 0,
+            bookmark_count: 0,
+            request_id: "r1",
+          },
+        ],
+        total: 1,
+        page: 1,
+        size: 20,
+        next_cursor: null,
+        has_more: false,
+        request_id: "r1",
+      },
+    });
+
+    render(<PostsListPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText("已经到底啦")).toBeInTheDocument();
     });
   });
 });

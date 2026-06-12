@@ -1,13 +1,21 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { FileText, PenLine } from "lucide-react";
-import { fetchPosts, type PostListData } from "@/lib/api/posts";
+import { fetchPosts, type PostListItem, type PostSortType } from "@/lib/api/posts";
 import { PostCard } from "./_components/PostCard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+
+const SORT_OPTIONS: { value: PostSortType; label: string }[] = [
+  { value: "latest", label: "最新" },
+  { value: "most_upvoted", label: "最热" },
+  { value: "most_commented", label: "最多讨论" },
+];
+
+const PAGE_SIZE = 20;
 
 function PostCardSkeleton() {
   return (
@@ -26,25 +34,71 @@ function PostCardSkeleton() {
 }
 
 export default function PostsListPage() {
-  const [data, setData] = useState<PostListData | null>(null);
-  const [page, setPage] = useState(1);
+  const [items, setItems] = useState<PostListItem[]>([]);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const size = 20;
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [sort, setSort] = useState<PostSortType>("latest");
 
-  const loadPosts = useCallback(async (p: number) => {
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const sortRef = useRef(sort);
+  sortRef.current = sort;
+
+  // First load / sort change
+  const loadFirst = useCallback(async (s: PostSortType) => {
     setIsLoading(true);
-    const res = await fetchPosts(p, size);
+    setItems([]);
+    setNextCursor(null);
+    setHasMore(false);
+    const res = await fetchPosts({ sort: s, size: PAGE_SIZE });
     if (res.status === 200 && res.data) {
-      setData(res.data);
+      setItems(res.data.items);
+      setNextCursor(res.data.next_cursor);
+      setHasMore(res.data.has_more);
     }
     setIsLoading(false);
   }, []);
 
   useEffect(() => {
-    loadPosts(page);
-  }, [page, loadPosts]);
+    loadFirst(sort);
+  }, [sort, loadFirst]);
 
-  const totalPages = data ? Math.ceil(data.total / size) : 0;
+  // Load more (cursor pagination)
+  const loadMore = useCallback(async () => {
+    if (!nextCursor || isLoadingMore) return;
+    setIsLoadingMore(true);
+    const res = await fetchPosts({ sort: sortRef.current, size: PAGE_SIZE, cursor: nextCursor });
+    if (res.status === 200 && res.data) {
+      setItems((prev) => [...prev, ...res.data!.items]);
+      setNextCursor(res.data.next_cursor);
+      setHasMore(res.data.has_more);
+    }
+    setIsLoadingMore(false);
+  }, [nextCursor, isLoadingMore]);
+
+  // IntersectionObserver on sentinel
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isLoading && !isLoadingMore) {
+          loadMore();
+        }
+      },
+      { rootMargin: "200px" }
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasMore, isLoading, isLoadingMore, loadMore]);
+
+  const handleSortChange = (newSort: PostSortType) => {
+    if (newSort === sort) return;
+    setSort(newSort);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
@@ -68,9 +122,26 @@ export default function PostsListPage() {
           </Link>
         </div>
         <div className="mt-8 h-px bg-gradient-to-r from-slate-200 via-slate-200 to-transparent" />
+
+        {/* Sort tabs */}
+        <div className="mt-6 flex gap-2">
+          {SORT_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => handleSortChange(opt.value)}
+              className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                sort === opt.value
+                  ? "bg-blue-50 text-blue-700"
+                  : "text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Loading Skeleton */}
+      {/* Loading Skeleton (initial) */}
       {isLoading && (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -80,7 +151,7 @@ export default function PostsListPage() {
       )}
 
       {/* Empty state */}
-      {!isLoading && data && data.items.length === 0 && (
+      {!isLoading && items.length === 0 && (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/50 py-24 text-center">
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-50">
             <FileText className="h-8 w-8 text-blue-600" />
@@ -101,40 +172,32 @@ export default function PostsListPage() {
       )}
 
       {/* Post grid */}
-      {!isLoading && data && data.items.length > 0 && (
-        <>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {data.items.map((post) => (
-              <PostCard key={post.id} post={post} />
-            ))}
-          </div>
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="mt-12 flex items-center justify-center gap-3">
-              <Button
-                variant="outline"
-                disabled={page === 1}
-                onClick={() => setPage((p) => p - 1)}
-              >
-                上一页
-              </Button>
-
-              <span className="min-w-[80px] text-center text-sm font-medium text-slate-700">
-                {page} / {totalPages}
-              </span>
-
-              <Button
-                variant="outline"
-                disabled={page === totalPages}
-                onClick={() => setPage((p) => p + 1)}
-              >
-                下一页
-              </Button>
-            </div>
-          )}
-        </>
+      {!isLoading && items.length > 0 && (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {items.map((post) => (
+            <PostCard key={post.id} post={post} />
+          ))}
+        </div>
       )}
+
+      {/* Loading more skeleton */}
+      {isLoadingMore && (
+        <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <PostCardSkeleton key={`loading-${i}`} />
+          ))}
+        </div>
+      )}
+
+      {/* End of list */}
+      {!hasMore && items.length > 0 && !isLoading && (
+        <p className="mt-10 text-center text-sm text-slate-400">
+          已经到底啦
+        </p>
+      )}
+
+      {/* Sentinel for IntersectionObserver */}
+      <div ref={sentinelRef} className="h-1" />
     </div>
     </div>
   );
