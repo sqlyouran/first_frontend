@@ -28,7 +28,8 @@ function makeComment(overrides: Partial<CommentData> = {}): CommentData {
   return {
     request_id: "r1",
     id: "c1",
-    post_id: "p1",
+    entity_id: "p1",
+    entity_type: "POST",
     user_id: "abcdefgh-1234-5678-9012-abcdef123456",
     content: "这是一条评论",
     parent_comment_id: null,
@@ -47,7 +48,7 @@ describe("CommentItem", () => {
   it("renders normal comment with truncated user id and content", () => {
     const comment = makeComment();
     const onReply = vi.fn();
-    render(<CommentItem comment={comment} depth={0} onReply={onReply} />);
+    render(<CommentItem comment={comment} entityId="p1" entityType="post" depth={0} onReply={onReply} />);
 
     expect(screen.getByText("abcdefgh")).toBeInTheDocument();
     expect(screen.getByText("这是一条评论")).toBeInTheDocument();
@@ -56,7 +57,7 @@ describe("CommentItem", () => {
 
   it("renders deleted comment placeholder", () => {
     const comment = makeComment({ deleted: true });
-    render(<CommentItem comment={comment} depth={0} />);
+    render(<CommentItem comment={comment} entityId="p1" entityType="post" depth={0} />);
 
     expect(screen.getByText("已删除用户")).toBeInTheDocument();
     expect(screen.getByText("[已删除]")).toBeInTheDocument();
@@ -68,7 +69,7 @@ describe("CommentItem", () => {
     const reply1 = makeComment({ id: "reply1", content: "第一层回复", parent_comment_id: "parent" });
 
     render(
-      <CommentItem comment={parent} depth={0} replies={[reply1]} replyCount={1} />
+      <CommentItem comment={parent} entityId="p1" entityType="post" depth={0} replies={[reply1]} replyCount={1} />
     );
 
     expect(screen.getByText("第一层回复")).toBeInTheDocument();
@@ -82,6 +83,8 @@ describe("CommentItem", () => {
     render(
       <CommentItem
         comment={parent}
+        entityId="p1"
+        entityType="post"
         depth={0}
         replies={[reply1]}
         replyCount={4}
@@ -100,7 +103,7 @@ describe("CommentItem", () => {
     const comment = makeComment();
     const onReply = vi.fn();
 
-    render(<CommentItem comment={comment} depth={0} onReply={onReply} />);
+    render(<CommentItem comment={comment} entityId="p1" entityType="post" depth={0} onReply={onReply} />);
 
     fireEvent.click(screen.getByText("回复"));
     expect(screen.getByPlaceholderText("回复 abcdefgh...")).toBeInTheDocument();
@@ -113,6 +116,8 @@ describe("CommentItem", () => {
     render(
       <CommentItem
         comment={parent}
+        entityId="p1"
+        entityType="post"
         depth={0}
         replies={[reply1]}
         replyCount={1}

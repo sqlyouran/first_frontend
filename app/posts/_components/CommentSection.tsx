@@ -6,12 +6,14 @@ import {
   fetchComments,
   fetchReplies,
   type CommentData,
+  type EntityType,
 } from "@/lib/api/interactions";
 import CommentItem from "./CommentItem";
 import CommentInput from "./CommentInput";
 
 interface CommentSectionProps {
-  postId: string;
+  entityId: string;
+  entityType: EntityType;
 }
 
 interface CommentWithReplies {
@@ -20,7 +22,7 @@ interface CommentWithReplies {
   replyCount: number;
 }
 
-export default function CommentSection({ postId }: CommentSectionProps) {
+export default function CommentSection({ entityId, entityType }: CommentSectionProps) {
   const [comments, setComments] = useState<CommentWithReplies[]>([]);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
@@ -32,7 +34,7 @@ export default function CommentSection({ postId }: CommentSectionProps) {
     if (pageNum === 1) setLoading(true);
     else setLoadingMore(true);
 
-    const result = await fetchComments(postId, pageNum, 20);
+    const result = await fetchComments(entityId, entityType, pageNum, 20);
 
     if (result.status === 200 && result.data) {
       const newComments: CommentWithReplies[] = result.data.items.map((c) => ({
@@ -54,7 +56,7 @@ export default function CommentSection({ postId }: CommentSectionProps) {
 
     if (pageNum === 1) setLoading(false);
     else setLoadingMore(false);
-  }, [postId]);
+  }, [entityId, entityType]);
 
   useEffect(() => {
     loadComments(1);
@@ -117,7 +119,7 @@ export default function CommentSection({ postId }: CommentSectionProps) {
         评论 {total > 0 && <span className="text-sm font-normal text-slate-500">({total})</span>}
       </h3>
 
-      <CommentInput postId={postId} onSuccess={handleNewComment} />
+      <CommentInput entityId={entityId} entityType={entityType} onSuccess={handleNewComment} />
 
       {comments.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -130,6 +132,8 @@ export default function CommentSection({ postId }: CommentSectionProps) {
             <CommentItem
               key={comment.id}
               comment={comment}
+              entityId={entityId}
+              entityType={entityType}
               depth={0}
               replies={replies}
               replyCount={replyCount}

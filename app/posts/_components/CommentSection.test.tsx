@@ -33,7 +33,8 @@ function makeCommentData(overrides: Record<string, unknown> = {}) {
   return {
     request_id: "r1",
     id: "c1",
-    post_id: "p1",
+    entity_id: "p1",
+    entity_type: "POST",
     user_id: "abcdefgh-1234-5678-9012-abcdef123456",
     content: "第一条评论",
     parent_comment_id: null,
@@ -61,12 +62,12 @@ describe("CommentSection", () => {
       },
     });
 
-    render(<CommentSection postId="p1" />);
+    render(<CommentSection entityId="p1" entityType="post" />);
 
     await waitFor(() => {
       expect(screen.getByText("Hello")).toBeInTheDocument();
     });
-    expect(mockFetchComments).toHaveBeenCalledWith("p1", 1, 20);
+    expect(mockFetchComments).toHaveBeenCalledWith("p1", "post", 1, 20);
   });
 
   it("shows empty state when no comments", async () => {
@@ -81,7 +82,7 @@ describe("CommentSection", () => {
       },
     });
 
-    render(<CommentSection postId="p1" />);
+    render(<CommentSection entityId="p1" entityType="post" />);
 
     await waitFor(() => {
       expect(screen.getByText("暂无评论，发表第一条评论吧")).toBeInTheDocument();
@@ -105,7 +106,7 @@ describe("CommentSection", () => {
       data: makeCommentData({ id: "c2", content: "新评论" }),
     });
 
-    render(<CommentSection postId="p1" />);
+    render(<CommentSection entityId="p1" entityType="post" />);
 
     await waitFor(() => {
       expect(screen.getByText("已有评论")).toBeInTheDocument();
@@ -138,7 +139,7 @@ describe("CommentSection", () => {
       },
     });
 
-    render(<CommentSection postId="p1" />);
+    render(<CommentSection entityId="p1" entityType="post" />);
 
     await waitFor(() => {
       expect(screen.getByText("加载更多评论")).toBeInTheDocument();

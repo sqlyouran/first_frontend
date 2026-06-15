@@ -5,14 +5,15 @@ import { useRouter } from "next/navigation";
 import { Bookmark, BookmarkCheck } from "lucide-react";
 import { toast } from "sonner";
 import { useAuthStore } from "@/lib/stores/auth";
-import { toggleBookmark, fetchBookmarkStatus } from "@/lib/api/interactions";
+import { toggleBookmark, fetchBookmarkStatus, type EntityType } from "@/lib/api/interactions";
 
 interface BookmarkButtonProps {
-  postId: string;
+  entityId: string;
+  entityType: EntityType;
   initialBookmarked: boolean;
 }
 
-export default function BookmarkButton({ postId, initialBookmarked }: BookmarkButtonProps) {
+export default function BookmarkButton({ entityId, entityType, initialBookmarked }: BookmarkButtonProps) {
   const router = useRouter();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
@@ -22,13 +23,13 @@ export default function BookmarkButton({ postId, initialBookmarked }: BookmarkBu
   // On mount, if logged in, re-fetch to get personal bookmark state
   useEffect(() => {
     if (isAuthenticated) {
-      fetchBookmarkStatus(postId).then((res) => {
+      fetchBookmarkStatus(entityId, entityType).then((res) => {
         if (res.data) {
           setBookmarked(res.data.bookmarked);
         }
       });
     }
-  }, [postId, isAuthenticated]);
+  }, [entityId, entityType, isAuthenticated]);
 
   const handleClick = async () => {
     if (!isAuthenticated) {
@@ -42,7 +43,7 @@ export default function BookmarkButton({ postId, initialBookmarked }: BookmarkBu
     setLoading(true);
     setBookmarked(!bookmarked);
 
-    const result = await toggleBookmark(postId);
+    const result = await toggleBookmark(entityId, entityType);
 
     if (result.status === 200 && result.data) {
       setBookmarked(result.data.bookmarked);

@@ -4,10 +4,11 @@ import { useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useAuthStore } from "@/lib/stores/auth";
-import { createComment, type CommentData } from "@/lib/api/interactions";
+import { createComment, type CommentData, type EntityType } from "@/lib/api/interactions";
 
 interface CommentInputProps {
-  postId: string;
+  entityId: string;
+  entityType: EntityType;
   parentCommentId?: string;
   placeholder?: string;
   onSuccess?: (comment: CommentData) => void;
@@ -15,7 +16,8 @@ interface CommentInputProps {
 }
 
 export default function CommentInput({
-  postId,
+  entityId,
+  entityType,
   parentCommentId,
   placeholder = "写下你的评论...",
   onSuccess,
@@ -42,7 +44,7 @@ export default function CommentInput({
     if (!content.trim() || loading) return;
 
     setLoading(true);
-    const result = await createComment(postId, content.trim(), parentCommentId);
+    const result = await createComment(entityId, entityType, content.trim(), parentCommentId);
 
     if (result.status === 201 && result.data) {
       setContent("");

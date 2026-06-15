@@ -11,7 +11,7 @@ export default function HotSpotsSlot() {
             Off-the-Beaten-Path Spots
           </h2>
           <a
-            href="#all-spots"
+            href="/spots/ranking"
             className="font-medium text-blue-700 hover:text-blue-800"
           >
             See all →

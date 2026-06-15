@@ -21,13 +21,13 @@ describe("CityGridSlot", () => {
     expect(anchors.length).toBe(8);
   });
 
-  it("all anchors have href === #", () => {
+  it("all anchors have href starting with /spots?city=", () => {
     const { container } = render(<CityGridSlot />);
     const anchors = container.querySelectorAll(
       'section[data-region="city-grid"] a',
     );
     anchors.forEach((a) => {
-      expect(a.getAttribute("href")).toBe("#");
+      expect(a.getAttribute("href")).toMatch(/^\/spots\?city=/);
     });
   });
 
@@ -62,7 +62,7 @@ describe("CityGridSlot", () => {
     items.forEach((item: { label: string; bestSeason: string; image: string; href: string }) => {
       expect(typeof item.label).toBe("string");
       expect(item.label.trim().length).toBeGreaterThan(0);
-      expect(item.href).toBe("#");
+      expect(item.href).toMatch(/^\/spots\?city=/);
       expect(validSeasons).toContain(item.bestSeason);
       expect(item.image).toMatch(/^https:\/\/picsum\.photos\//);
     });

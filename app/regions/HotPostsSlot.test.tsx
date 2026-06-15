@@ -21,13 +21,13 @@ describe("HotPostsSlot", () => {
     expect(anchors.length).toBe(3);
   });
 
-  it("all anchors have href === #", () => {
+  it("all anchors have href starting with /posts/", () => {
     const { container } = render(<HotPostsSlot />);
     const anchors = container.querySelectorAll(
       '[data-region="hot-posts"] a',
     );
     anchors.forEach((a) => {
-      expect(a.getAttribute("href")).toBe("#");
+      expect(a.getAttribute("href")).toMatch(/^\/posts\//);
     });
   });
 
@@ -65,7 +65,7 @@ describe("HotPostsSlot", () => {
     items.forEach((item: { title: string; image: string; href: string }) => {
       expect(typeof item.title).toBe("string");
       expect(item.title.trim().length).toBeGreaterThan(0);
-      expect(item.href).toBe("#");
+      expect(item.href).toMatch(/^\/posts\//);
       expect(item.image).toMatch(/^https:\/\/picsum\.photos\//);
     });
   });

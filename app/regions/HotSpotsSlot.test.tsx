@@ -21,13 +21,13 @@ describe("HotSpotsSlot", () => {
     expect(cards.length).toBe(8);
   });
 
-  it("all card anchors have href === #", () => {
+  it("all card anchors have href starting with /spots/", () => {
     const { container } = render(<HotSpotsSlot />);
     const cards = container.querySelectorAll(
       '[data-region="hot-spots"] .overflow-x-auto > a',
     );
     cards.forEach((a) => {
-      expect(a.getAttribute("href")).toBe("#");
+      expect(a.getAttribute("href")).toMatch(/^\/spots\//);
     });
   });
 
@@ -70,7 +70,7 @@ describe("HotSpotsSlot", () => {
     items.forEach((item: { name: string; tags: string[]; image: string; href: string }) => {
       expect(typeof item.name).toBe("string");
       expect(item.name.trim().length).toBeGreaterThan(0);
-      expect(item.href).toBe("#");
+      expect(item.href).toMatch(/^\/spots\//);
       expect(Array.isArray(item.tags)).toBe(true);
       expect(item.tags.length).toBeGreaterThan(0);
       expect(item.image).toMatch(/^https:\/\/picsum\.photos\//);
@@ -83,5 +83,12 @@ describe("HotSpotsSlot", () => {
       "utf-8",
     );
     expect(src).not.toMatch(/fetchFromBackend|fetch\(|import.*lib\/backend/);
+  });
+
+  it('"See all" link points to /spots/ranking', () => {
+    const { container } = render(<HotSpotsSlot />);
+    const seeAllLink = container.querySelector('a[href="/spots/ranking"]');
+    expect(seeAllLink).not.toBeNull();
+    expect(seeAllLink?.textContent?.trim()).toBe("See all →");
   });
 });

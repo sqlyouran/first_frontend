@@ -21,7 +21,7 @@ export function formatCount(n: number): string | null {
 
 export function PostCard({ post }: PostCardProps) {
   return (
-    <Link href={`/posts/${post.id}`} className="block group">
+    <Link href={`/posts/${post.slug}`} className="block group">
       <Card className="overflow-hidden transition-shadow hover:shadow-lg">
         {/* Cover image or gradient placeholder */}
         <div

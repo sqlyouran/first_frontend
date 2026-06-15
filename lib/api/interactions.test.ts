@@ -110,11 +110,23 @@ describe("interactions API", () => {
         new Response(JSON.stringify(data), { status: 200 })
       );
 
-      const result = await fetchBookmarkStatus("p1");
+      const result = await fetchBookmarkStatus("p1", "post");
 
       expect(result.status).toBe(200);
       expect(result.data?.bookmarked).toBe(true);
       expect(authFetchMock).toHaveBeenCalledWith("/api/posts/p1/bookmark-status");
+    });
+
+    it("sends GET /api/spots/{id}/bookmark-status for spots", async () => {
+      const data = { request_id: "r1", bookmarked: false };
+      authFetchMock.mockResolvedValue(
+        new Response(JSON.stringify(data), { status: 200 })
+      );
+
+      const result = await fetchBookmarkStatus("s1", "spot");
+
+      expect(result.status).toBe(200);
+      expect(authFetchMock).toHaveBeenCalledWith("/api/spots/s1/bookmark-status");
     });
   });
 
@@ -125,12 +137,26 @@ describe("interactions API", () => {
         new Response(JSON.stringify(data), { status: 200 })
       );
 
-      const result = await toggleBookmark("p1");
+      const result = await toggleBookmark("p1", "post");
 
       expect(result.status).toBe(200);
       expect(result.data?.bookmarked).toBe(true);
       expect(authFetchMock).toHaveBeenCalledWith(
         "/api/posts/p1/bookmark",
+        expect.objectContaining({ method: "POST" })
+      );
+    });
+
+    it("sends POST /api/spots/{id}/bookmark for spots", async () => {
+      const data = { request_id: "r1", bookmarked: true };
+      authFetchMock.mockResolvedValue(
+        new Response(JSON.stringify(data), { status: 200 })
+      );
+
+      await toggleBookmark("s1", "spot");
+
+      expect(authFetchMock).toHaveBeenCalledWith(
+        "/api/spots/s1/bookmark",
         expect.objectContaining({ method: "POST" })
       );
     });
@@ -145,7 +171,7 @@ describe("interactions API", () => {
         new Response(JSON.stringify(data), { status: 200 })
       );
 
-      const result = await fetchComments("p1", 2, 10);
+      const result = await fetchComments("p1", "post", 2, 10);
 
       expect(result.status).toBe(200);
       expect(global.fetch).toHaveBeenCalledWith("/api/posts/p1/comments?page=2&size=10");
@@ -157,9 +183,20 @@ describe("interactions API", () => {
         new Response(JSON.stringify(data), { status: 200 })
       );
 
-      await fetchComments("p1");
+      await fetchComments("p1", "post");
 
       expect(global.fetch).toHaveBeenCalledWith("/api/posts/p1/comments?page=1&size=20");
+    });
+
+    it("sends GET /api/spots/{id}/comments for spots", async () => {
+      const data = { request_id: "r1", items: [], total: 0, page: 1, size: 20 };
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
+        new Response(JSON.stringify(data), { status: 200 })
+      );
+
+      await fetchComments("s1", "spot");
+
+      expect(global.fetch).toHaveBeenCalledWith("/api/spots/s1/comments?page=1&size=20");
     });
   });
 
@@ -181,7 +218,8 @@ describe("interactions API", () => {
       const data = {
         request_id: "r1",
         id: "c1",
-        post_id: "p1",
+        entity_id: "p1",
+        entity_type: "POST",
         user_id: "u1",
         content: "Hello",
         parent_comment_id: null,
@@ -192,7 +230,7 @@ describe("interactions API", () => {
         new Response(JSON.stringify(data), { status: 201 })
       );
 
-      const result = await createComment("p1", "Hello");
+      const result = await createComment("p1", "post", "Hello");
 
       expect(result.status).toBe(201);
       expect(authFetchMock).toHaveBeenCalledWith(
@@ -206,10 +244,14 @@ describe("interactions API", () => {
 
     it("includes parent_comment_id when provided", async () => {
       authFetchMock.mockResolvedValue(
-        new Response(JSON.stringify({ request_id: "r1", id: "c2", post_id: "p1", user_id: "u1", content: "Reply", parent_comment_id: "c1", created_at: "2024-01-01T00:00:00Z", deleted: false }), { status: 201 })
+        new Response(JSON.stringify({
+          request_id: "r1", id: "c2", entity_id: "p1", entity_type: "POST",
+          user_id: "u1", content: "Reply", parent_comment_id: "c1",
+          created_at: "2024-01-01T00:00:00Z", deleted: false,
+        }), { status: 201 })
       );
 
-      await createComment("p1", "Reply", "c1");
+      await createComment("p1", "post", "Reply", "c1");
 
       expect(authFetchMock).toHaveBeenCalledWith(
         "/api/posts/p1/comments",
@@ -218,17 +260,48 @@ describe("interactions API", () => {
         })
       );
     });
+
+    it("sends POST /api/spots/{id}/comments for spots", async () => {
+      authFetchMock.mockResolvedValue(
+        new Response(JSON.stringify({
+          request_id: "r1", id: "c1", entity_id: "s1", entity_type: "SPOT",
+          user_id: "u1", content: "Nice", parent_comment_id: null,
+          created_at: "2024-01-01T00:00:00Z", deleted: false,
+        }), { status: 201 })
+      );
+
+      await createComment("s1", "spot", "Nice");
+
+      expect(authFetchMock).toHaveBeenCalledWith(
+        "/api/spots/s1/comments",
+        expect.objectContaining({
+          method: "POST",
+          body: JSON.stringify({ content: "Nice" }),
+        })
+      );
+    });
   });
 
   describe("deleteComment", () => {
-    it("sends DELETE /api/posts/{postId}/comments/{commentId}", async () => {
+    it("sends DELETE /api/posts/{entityId}/comments/{commentId}", async () => {
       authFetchMock.mockResolvedValue(new Response(null, { status: 204 }));
 
-      const result = await deleteComment("p1", "c1");
+      const result = await deleteComment("p1", "post", "c1");
 
       expect(result.status).toBe(204);
       expect(authFetchMock).toHaveBeenCalledWith(
         "/api/posts/p1/comments/c1",
+        expect.objectContaining({ method: "DELETE" })
+      );
+    });
+
+    it("sends DELETE /api/spots/{entityId}/comments/{commentId} for spots", async () => {
+      authFetchMock.mockResolvedValue(new Response(null, { status: 204 }));
+
+      await deleteComment("s1", "spot", "c1");
+
+      expect(authFetchMock).toHaveBeenCalledWith(
+        "/api/spots/s1/comments/c1",
         expect.objectContaining({ method: "DELETE" })
       );
     });

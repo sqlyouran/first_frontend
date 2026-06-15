@@ -13,6 +13,7 @@ vi.mock("next/link", () => ({
 const samplePost: PostListItem = {
   id: "p1",
   title: "My Travel Post",
+  slug: "my-travel-post-p1",
   cover_image: "https://example.com/cover.jpg",
   tags: ["travel", "food", "culture"],
   status: "published",
@@ -67,7 +68,7 @@ describe("PostCard", () => {
   it("links to post detail", () => {
     render(<PostCard post={samplePost} />);
     const link = screen.getByRole("link");
-    expect(link).toHaveAttribute("href", "/posts/p1");
+    expect(link).toHaveAttribute("href", "/posts/my-travel-post-p1");
   });
 
   it("renders interaction stats with non-zero values", () => {

@@ -13,6 +13,7 @@ import type { VoteStatsData } from "@/lib/api/interactions";
 interface PostDetail {
   id: string;
   title: string;
+  slug: string;
   content: string;
   cover_image: string | null;
   tags: string[];
@@ -122,15 +123,15 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
       {/* Interaction bar */}
       <div className="mt-6 flex items-center justify-between border-y border-slate-200 py-4">
         <VoteButtons
-          postId={id}
+          postId={post.id}
           initialVoteStats={initialVoteStats ?? { request_id: "", up_count: 0, down_count: 0, user_vote: null }}
         />
-        <BookmarkButton postId={id} initialBookmarked={initialBookmarked} />
+        <BookmarkButton entityId={post.id} entityType="post" initialBookmarked={initialBookmarked} />
       </div>
 
       {/* Comment section */}
       <div className="mt-8">
-        <CommentSection postId={id} />
+        <CommentSection entityId={post.id} entityType="post" />
       </div>
     </article>
     </div>

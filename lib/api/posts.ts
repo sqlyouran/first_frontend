@@ -8,6 +8,7 @@ export type PostSortType = "latest" | "most_upvoted" | "most_commented";
 export interface PostData {
   id: string;
   title: string;
+  slug: string;
   content: string;
   cover_image: string | null;
   tags: string[];
@@ -24,6 +25,7 @@ export interface PostData {
 export interface PostListItem {
   id: string;
   title: string;
+  slug: string;
   cover_image: string | null;
   tags: string[];
   status: string;

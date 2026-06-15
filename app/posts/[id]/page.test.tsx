@@ -31,16 +31,16 @@ vi.mock("../_components/VoteButtons", () => ({
 }));
 
 vi.mock("../_components/BookmarkButton", () => ({
-  default: ({ postId }: { postId: string }) => (
-    <div data-testid="bookmark-button" data-post-id={postId}>
+  default: ({ entityId, entityType }: { entityId: string; entityType: string }) => (
+    <div data-testid="bookmark-button" data-entity-id={entityId} data-entity-type={entityType}>
       BookmarkButton
     </div>
   ),
 }));
 
 vi.mock("../_components/CommentSection", () => ({
-  default: ({ postId }: { postId: string }) => (
-    <div data-testid="comment-section" data-post-id={postId}>
+  default: ({ entityId, entityType }: { entityId: string; entityType: string }) => (
+    <div data-testid="comment-section" data-entity-id={entityId} data-entity-type={entityType}>
       CommentSection
     </div>
   ),
@@ -153,7 +153,7 @@ describe("PostDetailPage", () => {
     expect(screen.getByText("culture")).toBeInTheDocument();
   });
 
-  it("passes postId to interaction components", async () => {
+  it("passes entityId and entityType to interaction components", async () => {
     fetchMock
       .mockResolvedValueOnce(mockPostResponse())
       .mockResolvedValueOnce(mockVoteStatsResponse())
@@ -163,7 +163,9 @@ describe("PostDetailPage", () => {
     render(page);
 
     expect(screen.getByTestId("vote-buttons")).toHaveAttribute("data-post-id", "p1");
-    expect(screen.getByTestId("bookmark-button")).toHaveAttribute("data-post-id", "p1");
-    expect(screen.getByTestId("comment-section")).toHaveAttribute("data-post-id", "p1");
+    expect(screen.getByTestId("bookmark-button")).toHaveAttribute("data-entity-id", "p1");
+    expect(screen.getByTestId("bookmark-button")).toHaveAttribute("data-entity-type", "post");
+    expect(screen.getByTestId("comment-section")).toHaveAttribute("data-entity-id", "p1");
+    expect(screen.getByTestId("comment-section")).toHaveAttribute("data-entity-type", "post");
   });
 });

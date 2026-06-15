@@ -35,20 +35,20 @@ describe("CommentInput", () => {
   });
 
   it("shows login prompt when not authenticated", () => {
-    render(<CommentInput postId="p1" />);
+    render(<CommentInput entityId="p1" entityType="post" />);
 
     expect(screen.getByText("登录")).toBeInTheDocument();
     expect(screen.getByText("后即可参与评论")).toBeInTheDocument();
   });
 
   it("hides login prompt for reply when not authenticated", () => {
-    const { container } = render(<CommentInput postId="p1" parentCommentId="c1" />);
+    const { container } = render(<CommentInput entityId="p1" entityType="post" parentCommentId="c1" />);
     expect(container.firstChild).toBeNull();
   });
 
   it("shows textarea and submit button when authenticated", () => {
     mockIsAuthenticated = true;
-    render(<CommentInput postId="p1" />);
+    render(<CommentInput entityId="p1" entityType="post" />);
 
     expect(screen.getByPlaceholderText("写下你的评论...")).toBeInTheDocument();
     expect(screen.getByText("发布")).toBeInTheDocument();
@@ -56,14 +56,14 @@ describe("CommentInput", () => {
 
   it("disables submit when content is empty", () => {
     mockIsAuthenticated = true;
-    render(<CommentInput postId="p1" />);
+    render(<CommentInput entityId="p1" entityType="post" />);
 
     expect(screen.getByText("发布")).toBeDisabled();
   });
 
   it("enables submit when content is entered", () => {
     mockIsAuthenticated = true;
-    render(<CommentInput postId="p1" />);
+    render(<CommentInput entityId="p1" entityType="post" />);
 
     fireEvent.change(screen.getByPlaceholderText("写下你的评论..."), {
       target: { value: "Hello world" },
@@ -80,7 +80,8 @@ describe("CommentInput", () => {
       data: {
         request_id: "r1",
         id: "c1",
-        post_id: "p1",
+        entity_id: "p1",
+        entity_type: "POST",
         user_id: "u1",
         content: "Hello",
         parent_comment_id: null,
@@ -89,7 +90,7 @@ describe("CommentInput", () => {
       },
     });
 
-    render(<CommentInput postId="p1" onSuccess={onSuccess} />);
+    render(<CommentInput entityId="p1" entityType="post" onSuccess={onSuccess} />);
 
     fireEvent.change(screen.getByPlaceholderText("写下你的评论..."), {
       target: { value: "Hello" },
@@ -97,7 +98,7 @@ describe("CommentInput", () => {
     fireEvent.click(screen.getByText("发布"));
 
     await waitFor(() => {
-      expect(createMock).toHaveBeenCalledWith("p1", "Hello", undefined);
+      expect(createMock).toHaveBeenCalledWith("p1", "post", "Hello", undefined);
       expect(onSuccess).toHaveBeenCalled();
       expect(toastMock.success).toHaveBeenCalledWith("评论已发布");
     });

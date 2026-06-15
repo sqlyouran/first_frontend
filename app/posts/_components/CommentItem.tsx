@@ -3,10 +3,13 @@
 import { useState } from "react";
 import { MessageSquare } from "lucide-react";
 import type { CommentData } from "@/lib/api/interactions";
+import type { EntityType } from "@/lib/api/interactions";
 import CommentInput from "./CommentInput";
 
 interface CommentItemProps {
   comment: CommentData;
+  entityId: string;
+  entityType: EntityType;
   depth: number;
   replies?: CommentData[];
   replyCount?: number;
@@ -33,6 +36,8 @@ function formatRelativeTime(dateString: string): string {
 
 export default function CommentItem({
   comment,
+  entityId,
+  entityType,
   depth,
   replies = [],
   replyCount = 0,
@@ -54,7 +59,13 @@ export default function CommentItem({
           {replies.length > 0 && (
             <div className="mt-3 space-y-4 border-l-2 border-slate-100 pl-4">
               {replies.map((reply) => (
-                <CommentItem key={reply.id} comment={reply} depth={depth + 1} />
+                <CommentItem
+                  key={reply.id}
+                  comment={reply}
+                  entityId={entityId}
+                  entityType={entityType}
+                  depth={depth + 1}
+                />
               ))}
             </div>
           )}
@@ -98,7 +109,8 @@ export default function CommentItem({
         {showReplyInput && (
           <div className="mt-3">
             <CommentInput
-              postId={comment.post_id}
+              entityId={entityId}
+              entityType={entityType}
               parentCommentId={comment.id}
               placeholder={`回复 ${comment.user_id.slice(0, 8)}...`}
               onSuccess={(newComment) => {
@@ -115,6 +127,8 @@ export default function CommentItem({
               <CommentItem
                 key={reply.id}
                 comment={reply}
+                entityId={entityId}
+                entityType={entityType}
                 depth={depth + 1}
                 onReply={onReply}
                 onNewReply={onNewReply}

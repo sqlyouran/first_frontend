@@ -5,6 +5,12 @@ import { authFetch } from "@/lib/api/authFetch";
 
 // === Types ===
 
+export type EntityType = "post" | "spot";
+
+function entityPath(entityType: EntityType): string {
+  return entityType === "post" ? "posts" : "spots";
+}
+
 export interface VoteStatsData {
   request_id: string;
   up_count: number;
@@ -30,7 +36,8 @@ export interface BookmarkData {
 export interface CommentData {
   request_id: string;
   id: string;
-  post_id: string;
+  entity_id: string;
+  entity_type: string;
   user_id: string;
   content: string;
   parent_comment_id: string | null;
@@ -46,7 +53,7 @@ export interface CommentListData {
   size: number;
 }
 
-// === Vote API ===
+// === Vote API (post-specific, unchanged) ===
 
 export async function fetchVoteStats(postId: string): Promise<ApiResponse<VoteStatsData>> {
   try {
@@ -89,9 +96,12 @@ export async function removeVote(postId: string): Promise<ApiResponse<void>> {
 
 // === Bookmark API ===
 
-export async function fetchBookmarkStatus(postId: string): Promise<ApiResponse<BookmarkStatusData>> {
+export async function fetchBookmarkStatus(
+  entityId: string,
+  entityType: EntityType
+): Promise<ApiResponse<BookmarkStatusData>> {
   try {
-    const res = await authFetch(`/api/posts/${postId}/bookmark-status`);
+    const res = await authFetch(`/api/${entityPath(entityType)}/${entityId}/bookmark-status`);
 
     if (res.status >= 500) return serverError(res.status);
     return parseResponse<BookmarkStatusData>(res);
@@ -100,9 +110,12 @@ export async function fetchBookmarkStatus(postId: string): Promise<ApiResponse<B
   }
 }
 
-export async function toggleBookmark(postId: string): Promise<ApiResponse<BookmarkData>> {
+export async function toggleBookmark(
+  entityId: string,
+  entityType: EntityType
+): Promise<ApiResponse<BookmarkData>> {
   try {
-    const res = await authFetch(`/api/posts/${postId}/bookmark`, {
+    const res = await authFetch(`/api/${entityPath(entityType)}/${entityId}/bookmark`, {
       method: "POST",
     });
 
@@ -116,12 +129,15 @@ export async function toggleBookmark(postId: string): Promise<ApiResponse<Bookma
 // === Comment API ===
 
 export async function fetchComments(
-  postId: string,
+  entityId: string,
+  entityType: EntityType,
   page: number = 1,
   size: number = 20
 ): Promise<ApiResponse<CommentListData>> {
   try {
-    const res = await fetch(`/api/posts/${postId}/comments?page=${page}&size=${size}`);
+    const res = await fetch(
+      `/api/${entityPath(entityType)}/${entityId}/comments?page=${page}&size=${size}`
+    );
 
     if (res.status >= 500) return serverError(res.status);
     return parseResponse<CommentListData>(res);
@@ -146,7 +162,8 @@ export async function fetchReplies(
 }
 
 export async function createComment(
-  postId: string,
+  entityId: string,
+  entityType: EntityType,
   content: string,
   parentCommentId?: string
 ): Promise<ApiResponse<CommentData>> {
@@ -156,7 +173,7 @@ export async function createComment(
       body.parent_comment_id = parentCommentId;
     }
 
-    const res = await authFetch(`/api/posts/${postId}/comments`, {
+    const res = await authFetch(`/api/${entityPath(entityType)}/${entityId}/comments`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
@@ -170,13 +187,15 @@ export async function createComment(
 }
 
 export async function deleteComment(
-  postId: string,
+  entityId: string,
+  entityType: EntityType,
   commentId: string
 ): Promise<ApiResponse<void>> {
   try {
-    const res = await authFetch(`/api/posts/${postId}/comments/${commentId}`, {
-      method: "DELETE",
-    });
+    const res = await authFetch(
+      `/api/${entityPath(entityType)}/${entityId}/comments/${commentId}`,
+      { method: "DELETE" }
+    );
 
     if (res.status >= 500) return serverError(res.status);
     return parseResponse<void>(res);
