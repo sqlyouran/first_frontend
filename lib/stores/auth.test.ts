@@ -30,7 +30,7 @@ describe("useAuthStore", () => {
 
   describe("setUser", () => {
     it("sets user state", () => {
-      const user = { id: "1", email: "a@b.com", state: "active", created_at: "2024-01-01" };
+      const user = { id: "1", email: "a@b.com", state: "active", created_at: "2024-01-01", nickname: null, avatar_url: null, username: null };
       useAuthStore.getState().setUser(user);
 
       expect(useAuthStore.getState().user).toEqual(user);
@@ -39,7 +39,7 @@ describe("useAuthStore", () => {
 
   describe("clearAuth", () => {
     it("clears all auth state", () => {
-      useAuthStore.setState({ accessToken: "token", user: { id: "1", email: "a@b.com", state: "active", created_at: "2024-01-01" }, isAuthenticated: true });
+      useAuthStore.setState({ accessToken: "token", user: { id: "1", email: "a@b.com", state: "active", created_at: "2024-01-01", nickname: null, avatar_url: null, username: null }, isAuthenticated: true });
 
       useAuthStore.getState().clearAuth();
 
@@ -50,11 +50,11 @@ describe("useAuthStore", () => {
   });
 
   describe("fetchMe", () => {
-    it("fetches user data and sets user state", async () => {
+    it("fetches user data and sets user state with profile fields", async () => {
       useAuthStore.setState({ accessToken: "token", isAuthenticated: true });
       fetchMeMock.mockResolvedValue({
         status: 200,
-        data: { id: "1", email: "test@a.com", state: "active", created_at: "2024-01-01", request_id: "r1" },
+        data: { id: "1", email: "test@a.com", state: "active", created_at: "2024-01-01", nickname: "Tester", avatar_url: "https://example.com/avatar.jpg", username: "tester01", request_id: "r1" },
       });
 
       await useAuthStore.getState().fetchMe();
@@ -65,6 +65,29 @@ describe("useAuthStore", () => {
         email: "test@a.com",
         state: "active",
         created_at: "2024-01-01",
+        nickname: "Tester",
+        avatar_url: "https://example.com/avatar.jpg",
+        username: "tester01",
+      });
+    });
+
+    it("fetches user data with null profile fields", async () => {
+      useAuthStore.setState({ accessToken: "token", isAuthenticated: true });
+      fetchMeMock.mockResolvedValue({
+        status: 200,
+        data: { id: "1", email: "test@a.com", state: "active", created_at: "2024-01-01", nickname: null, avatar_url: null, username: null, request_id: "r1" },
+      });
+
+      await useAuthStore.getState().fetchMe();
+
+      expect(useAuthStore.getState().user).toEqual({
+        id: "1",
+        email: "test@a.com",
+        state: "active",
+        created_at: "2024-01-01",
+        nickname: null,
+        avatar_url: null,
+        username: null,
       });
     });
 
@@ -77,7 +100,7 @@ describe("useAuthStore", () => {
 
   describe("logout", () => {
     it("calls API and clears state", async () => {
-      useAuthStore.setState({ accessToken: "token", user: { id: "1", email: "a@b.com", state: "active", created_at: "2024-01-01" }, isAuthenticated: true });
+      useAuthStore.setState({ accessToken: "token", user: { id: "1", email: "a@b.com", state: "active", created_at: "2024-01-01", nickname: null, avatar_url: null, username: null }, isAuthenticated: true });
       logoutMock.mockResolvedValue({ status: 204 });
 
       await useAuthStore.getState().logout();
@@ -106,7 +129,7 @@ describe("useAuthStore", () => {
       });
       fetchMeMock.mockResolvedValue({
         status: 200,
-        data: { id: "1", email: "user@a.com", state: "active", created_at: "2024-01-01", request_id: "r1" },
+        data: { id: "1", email: "user@a.com", state: "active", created_at: "2024-01-01", nickname: "User", avatar_url: null, username: "user01", request_id: "r1" },
       });
 
       await useAuthStore.getState().initialize();
@@ -118,6 +141,9 @@ describe("useAuthStore", () => {
         email: "user@a.com",
         state: "active",
         created_at: "2024-01-01",
+        nickname: "User",
+        avatar_url: null,
+        username: "user01",
       });
       expect(useAuthStore.getState().isInitialized).toBe(true);
     });

@@ -8,6 +8,11 @@ vi.mock("@/components/AuthProvider", () => ({
   AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
+// Mock SiteHeader (uses Next.js router which isn't available in renderToString)
+vi.mock("@/app/_components/SiteHeader", () => ({
+  default: () => <header data-testid="site-header" />,
+}));
+
 import Page from "./page";
 import RootLayout from "./layout";
 

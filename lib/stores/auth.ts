@@ -6,6 +6,9 @@ export interface User {
   email: string;
   state: string;
   created_at: string;
+  nickname: string | null;
+  avatar_url: string | null;
+  username: string | null;
 }
 
 interface AuthState {
@@ -45,6 +48,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           email: res.data.email,
           state: res.data.state,
           created_at: res.data.created_at,
+          nickname: res.data.nickname,
+          avatar_url: res.data.avatar_url,
+          username: res.data.username,
         },
       });
     }

@@ -19,11 +19,14 @@ interface RefreshData {
   request_id: string;
 }
 
-interface MeData {
+export interface MeData {
   id: string;
   email: string;
   state: string;
   created_at: string;
+  nickname: string | null;
+  avatar_url: string | null;
+  username: string | null;
   request_id: string;
 }
 
