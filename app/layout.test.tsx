@@ -8,6 +8,11 @@ vi.mock("@/components/AuthProvider", () => ({
   AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
+// Mock SiteHeader (uses Zustand which doesn't work in SSR renderToString)
+vi.mock("@/app/_components/SiteHeader", () => ({
+  default: () => <header data-testid="site-header" />,
+}));
+
 import RootLayout from "./layout";
 
 describe("homepage shell - layout", () => {
@@ -30,6 +35,18 @@ describe("homepage shell - layout", () => {
       launcherFragment.match(/<button(?:\s|>)/g) ?? []
     ).length;
     expect(buttonOpenCount).toBe(2);
+  });
+
+  it("renders SiteHeader before children", () => {
+    const tree = RootLayout({
+      children: <div data-testid="children-marker" /> as unknown as React.ReactNode,
+    } as { children: React.ReactNode });
+    const html = renderToString(tree as React.ReactElement);
+
+    const headerIdx = html.indexOf('data-testid="site-header"');
+    const markerIdx = html.indexOf('data-testid="children-marker"');
+    expect(headerIdx).toBeGreaterThan(-1);
+    expect(headerIdx).toBeLessThan(markerIdx);
   });
 
   it("globals.css defines --color-brand: #1d4ed8", () => {

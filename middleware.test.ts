@@ -36,8 +36,38 @@ describe("middleware", () => {
     expect(new URL(res.headers.get("location")!).pathname).toBe("/login");
   });
 
+  it("redirects to /login when unauthenticated user visits /profile", () => {
+    const req = createRequest("/profile", false);
+    const res = middleware(req);
+
+    expect(res.status).toBe(307);
+    expect(new URL(res.headers.get("location")!).pathname).toBe("/login");
+  });
+
+  it("redirects to /login when unauthenticated user visits /profile/edit", () => {
+    const req = createRequest("/profile/edit", false);
+    const res = middleware(req);
+
+    expect(res.status).toBe(307);
+    expect(new URL(res.headers.get("location")!).pathname).toBe("/login");
+  });
+
   it("allows authenticated user to access /posts/create", () => {
     const req = createRequest("/posts/create", true);
+    const res = middleware(req);
+
+    expect(res.headers.get("location")).toBeNull();
+  });
+
+  it("allows authenticated user to access /profile", () => {
+    const req = createRequest("/profile", true);
+    const res = middleware(req);
+
+    expect(res.headers.get("location")).toBeNull();
+  });
+
+  it("allows authenticated user to access /profile/edit", () => {
+    const req = createRequest("/profile/edit", true);
     const res = middleware(req);
 
     expect(res.headers.get("location")).toBeNull();
@@ -52,6 +82,13 @@ describe("middleware", () => {
 
   it("allows unauthenticated user to access /posts/{id} (detail)", () => {
     const req = createRequest("/posts/some-uuid", false);
+    const res = middleware(req);
+
+    expect(res.headers.get("location")).toBeNull();
+  });
+
+  it("allows unauthenticated user to access /users/{username} (public profile)", () => {
+    const req = createRequest("/users/traveler01", false);
     const res = middleware(req);
 
     expect(res.headers.get("location")).toBeNull();

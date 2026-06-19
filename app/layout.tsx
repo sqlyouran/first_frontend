@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import AiLauncherSlot from "./regions/AiLauncherSlot";
 import { AuthProvider } from "@/components/AuthProvider";
+import SiteHeader from "@/app/_components/SiteHeader";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -30,6 +31,7 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${plusJakarta.variable}`}>
       <body>
         <AuthProvider>
+          <SiteHeader />
           {children}
         </AuthProvider>
         <Toaster position="top-right" richColors />
