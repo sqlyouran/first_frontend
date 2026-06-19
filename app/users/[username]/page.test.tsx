@@ -7,7 +7,23 @@ import PublicProfileView, {
 // Mock next/navigation
 vi.mock("next/navigation", () => ({
   useParams: () => ({ username: "traveler01" }),
+  useRouter: () => ({ push: vi.fn() }),
 }));
+
+vi.mock("sonner", () => ({
+  toast: { error: vi.fn(), success: vi.fn() },
+}));
+
+vi.mock("@/lib/api/messages", () => ({
+  createConversation: vi.fn(),
+}));
+
+vi.mock("@/lib/stores/auth", () => ({
+  useAuthStore: vi.fn(),
+}));
+
+import { useAuthStore } from "@/lib/stores/auth";
+const useAuthStoreMock = vi.mocked(useAuthStore);
 
 const publicProfile = {
   id: "u1",
@@ -34,6 +50,10 @@ const minimalProfile = {
 describe("PublicProfileView", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Mock auth as not authenticated so SendMessageButton doesn't render
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    useAuthStoreMock.mockImplementation(((selector: any) =>
+      selector({ isAuthenticated: false, user: null })) as any);
   });
 
   it("shows profile content when loaded", () => {

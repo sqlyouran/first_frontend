@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import UserDropdown from "@/app/_components/UserDropdown";
+import { MessageIcon } from "@/app/_components/MessageIcon";
 import { Compass } from "lucide-react";
 
 export default function SiteHeader() {
@@ -15,7 +16,10 @@ export default function SiteHeader() {
           <Compass className="size-5 text-primary" />
           Wanderchina
         </Link>
-        <UserDropdown />
+        <div className="flex items-center gap-1">
+          <MessageIcon />
+          <UserDropdown />
+        </div>
       </div>
     </header>
   );

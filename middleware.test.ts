@@ -107,4 +107,36 @@ describe("middleware", () => {
 
     expect(res.headers.get("location")).toBeNull();
   });
+
+  // === Messages route guard ===
+
+  it("redirects to /login when unauthenticated user visits /messages", () => {
+    const req = createRequest("/messages", false);
+    const res = middleware(req);
+
+    expect(res.status).toBe(307);
+    expect(new URL(res.headers.get("location")!).pathname).toBe("/login");
+  });
+
+  it("allows authenticated user to access /messages", () => {
+    const req = createRequest("/messages", true);
+    const res = middleware(req);
+
+    expect(res.headers.get("location")).toBeNull();
+  });
+
+  it("redirects to /login when unauthenticated user visits /messages/{id}", () => {
+    const req = createRequest("/messages/some-conv-id", false);
+    const res = middleware(req);
+
+    expect(res.status).toBe(307);
+    expect(new URL(res.headers.get("location")!).pathname).toBe("/login");
+  });
+
+  it("allows authenticated user to access /messages/{id}", () => {
+    const req = createRequest("/messages/some-conv-id", true);
+    const res = middleware(req);
+
+    expect(res.headers.get("location")).toBeNull();
+  });
 });

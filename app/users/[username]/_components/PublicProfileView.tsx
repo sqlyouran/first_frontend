@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { User as UserIcon, Calendar, SearchX } from "lucide-react";
+import { SendMessageButton } from "./SendMessageButton";
 
 function AvatarImage({ url, name }: { url: string | null; name: string }) {
   const [hasError, setHasError] = useState(false);
@@ -64,7 +65,7 @@ export default function PublicProfileView({
           url={profile.avatar_url}
           name={profile.nickname ?? profile.username}
         />
-        <div>
+        <div className="flex-1">
           <h1 className="font-heading text-3xl font-bold text-slate-900 lg:text-4xl">
             {profile.nickname ?? profile.username}
           </h1>
@@ -72,6 +73,7 @@ export default function PublicProfileView({
             @{profile.username}
           </p>
         </div>
+        <SendMessageButton recipientUsername={profile.username} />
       </div>
 
       {/* Bio */}
