@@ -1,27 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
-import PublicProfilePage from "@/app/users/[username]/page";
+import { render, screen } from "@testing-library/react";
+import PublicProfileView, {
+  PublicProfileNotFound,
+} from "@/app/users/[username]/_components/PublicProfileView";
 
 // Mock next/navigation
 vi.mock("next/navigation", () => ({
   useParams: () => ({ username: "traveler01" }),
 }));
-
-// Mock profile API
-vi.mock("@/lib/api/profile", () => ({
-  fetchPublicProfile: vi.fn(),
-}));
-
-// Mock auth API (for store initialization chain)
-vi.mock("@/lib/api/auth", () => ({
-  login: vi.fn(),
-  refreshToken: vi.fn().mockResolvedValue({ status: 401 }),
-  fetchMe: vi.fn().mockResolvedValue({ status: 401 }),
-  logout: vi.fn().mockResolvedValue({ status: 204 }),
-}));
-
-import { fetchPublicProfile } from "@/lib/api/profile";
-const fetchPublicProfileMock = vi.mocked(fetchPublicProfile);
 
 const publicProfile = {
   id: "u1",
@@ -45,77 +31,57 @@ const minimalProfile = {
   request_id: "r2",
 };
 
-describe("PublicProfilePage", () => {
+describe("PublicProfileView", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("shows loading skeleton initially", () => {
-    fetchPublicProfileMock.mockImplementation(() => new Promise(() => {}));
-    render(<PublicProfilePage />);
+  it("shows profile content when loaded", () => {
+    render(<PublicProfileView profile={publicProfile} />);
 
-    expect(screen.getByTestId("public-profile-skeleton")).toBeInTheDocument();
-  });
-
-  it("shows profile content when loaded", async () => {
-    fetchPublicProfileMock.mockResolvedValue({ status: 200, data: publicProfile });
-    render(<PublicProfilePage />);
-
-    await waitFor(() => {
-      expect(screen.getByText("Alice")).toBeInTheDocument();
-    });
-
+    expect(screen.getByText("Alice")).toBeInTheDocument();
     expect(screen.getByText("@traveler01")).toBeInTheDocument();
-    expect(screen.getByText("Love hiking and exploring China")).toBeInTheDocument();
+    expect(
+      screen.getByText("Love hiking and exploring China"),
+    ).toBeInTheDocument();
     expect(screen.getByText("hiking")).toBeInTheDocument();
     expect(screen.getByText("photography")).toBeInTheDocument();
   });
 
-  it("shows minimal profile (no bio/tags) correctly", async () => {
-    fetchPublicProfileMock.mockResolvedValue({ status: 200, data: minimalProfile });
-    render(<PublicProfilePage />);
+  it("shows minimal profile (no bio/tags) correctly", () => {
+    render(<PublicProfileView profile={minimalProfile} />);
 
-    await waitFor(() => {
-      expect(screen.getByText("Bob")).toBeInTheDocument();
-    });
-
+    expect(screen.getByText("Bob")).toBeInTheDocument();
     expect(screen.getByText("@minimal")).toBeInTheDocument();
+    expect(screen.queryByText("Interests")).not.toBeInTheDocument();
   });
 
-  it("shows not found when user does not exist (404)", async () => {
-    fetchPublicProfileMock.mockResolvedValue({
-      status: 404,
-      error: { request_id: "r1", error_code: "not_found", message: "User not found" },
-    });
-    render(<PublicProfilePage />);
+  it("shows not found component", () => {
+    render(<PublicProfileNotFound />);
 
-    await waitFor(() => {
-      expect(screen.getByText("User Not Found")).toBeInTheDocument();
-    });
+    expect(screen.getByText("User Not Found")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /go home/i })).toHaveAttribute(
+      "href",
+      "/",
+    );
   });
 
-  it("shows error state with retry on server error", async () => {
-    fetchPublicProfileMock.mockResolvedValue({
-      status: 500,
-      error: { request_id: "r1", error_code: "server_error", message: "Server error" },
-    });
-    render(<PublicProfilePage />);
-
-    await waitFor(() => {
-      expect(screen.getByText("Something went wrong")).toBeInTheDocument();
-    });
-
-    expect(screen.getByRole("button", { name: /try again/i })).toBeInTheDocument();
-  });
-
-  it("does not show email in public profile", async () => {
-    fetchPublicProfileMock.mockResolvedValue({ status: 200, data: publicProfile });
-    render(<PublicProfilePage />);
-
-    await waitFor(() => {
-      expect(screen.getByText("Alice")).toBeInTheDocument();
-    });
+  it("does not show email in public profile", () => {
+    render(<PublicProfileView profile={publicProfile} />);
 
     expect(screen.queryByText(/@example\.com/)).not.toBeInTheDocument();
+  });
+
+  it("shows member since date", () => {
+    render(<PublicProfileView profile={publicProfile} />);
+
+    expect(screen.getByText(/Joined/)).toBeInTheDocument();
+  });
+
+  it("shows interest tags as badges", () => {
+    render(<PublicProfileView profile={publicProfile} />);
+
+    expect(screen.getByText("hiking")).toBeInTheDocument();
+    expect(screen.getByText("photography")).toBeInTheDocument();
   });
 });
