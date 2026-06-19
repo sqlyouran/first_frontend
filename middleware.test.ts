@@ -107,4 +107,20 @@ describe("middleware", () => {
 
     expect(res.headers.get("location")).toBeNull();
   });
+
+  // Notifications route guard
+  it("redirects to /login when unauthenticated user visits /notifications", () => {
+    const req = createRequest("/notifications", false);
+    const res = middleware(req);
+
+    expect(res.status).toBe(307);
+    expect(new URL(res.headers.get("location")!).pathname).toBe("/login");
+  });
+
+  it("allows authenticated user to access /notifications", () => {
+    const req = createRequest("/notifications", true);
+    const res = middleware(req);
+
+    expect(res.headers.get("location")).toBeNull();
+  });
 });
