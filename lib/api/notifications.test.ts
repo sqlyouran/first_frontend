@@ -37,7 +37,7 @@ describe("notifications API", () => {
         page: 1,
         size: 20,
       };
-      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
+      authFetchMock.mockResolvedValue(
         new Response(JSON.stringify(data), { status: 200 })
       );
 
@@ -45,7 +45,7 @@ describe("notifications API", () => {
 
       expect(result.status).toBe(200);
       expect(result.data?.items).toEqual([]);
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(authFetchMock).toHaveBeenCalledWith(
         "/api/notifications?page=1&size=20"
       );
     });
@@ -58,13 +58,13 @@ describe("notifications API", () => {
         page: 2,
         size: 10,
       };
-      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
+      authFetchMock.mockResolvedValue(
         new Response(JSON.stringify(data), { status: 200 })
       );
 
       await fetchNotifications(2, 10);
 
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(authFetchMock).toHaveBeenCalledWith(
         "/api/notifications?page=2&size=10"
       );
     });
@@ -92,7 +92,7 @@ describe("notifications API", () => {
         page: 1,
         size: 20,
       };
-      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
+      authFetchMock.mockResolvedValue(
         new Response(JSON.stringify(data), { status: 200 })
       );
 
@@ -105,7 +105,7 @@ describe("notifications API", () => {
     });
 
     it("returns serverError on 500", async () => {
-      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
+      authFetchMock.mockResolvedValue(
         new Response("error", { status: 500 })
       );
 
@@ -116,7 +116,7 @@ describe("notifications API", () => {
     });
 
     it("returns networkError on fetch failure", async () => {
-      (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValue(
+      authFetchMock.mockRejectedValue(
         new Error("Network")
       );
 
@@ -186,7 +186,7 @@ describe("notifications API", () => {
   describe("fetchUnreadCount", () => {
     it("sends GET /api/notifications/unread-count", async () => {
       const data = { request_id: "r1", unread_count: 3 };
-      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
+      authFetchMock.mockResolvedValue(
         new Response(JSON.stringify(data), { status: 200 })
       );
 
@@ -194,13 +194,13 @@ describe("notifications API", () => {
 
       expect(result.status).toBe(200);
       expect(result.data?.unread_count).toBe(3);
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(authFetchMock).toHaveBeenCalledWith(
         "/api/notifications/unread-count"
       );
     });
 
     it("returns serverError on 500", async () => {
-      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
+      authFetchMock.mockResolvedValue(
         new Response("error", { status: 500 })
       );
 
@@ -211,7 +211,7 @@ describe("notifications API", () => {
     });
 
     it("returns networkError on fetch failure", async () => {
-      (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValue(
+      authFetchMock.mockRejectedValue(
         new Error("Network")
       );
 
