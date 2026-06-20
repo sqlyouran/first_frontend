@@ -19,6 +19,7 @@ interface PostDetail {
   tags: string[];
   status: string;
   author_id: string;
+  author_username: string | null;
   created_at: string;
   updated_at: string;
   request_id: string;
@@ -94,7 +95,16 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
           </span>
           <span className="inline-flex items-center gap-1.5">
             <User className="h-4 w-4" />
-            作者 {post.author_id.slice(0, 8)}
+            {post.author_username ? (
+              <Link
+                href={`/users/${post.author_username}`}
+                className="text-blue-700 hover:text-blue-800 hover:underline"
+              >
+                {post.author_username}
+              </Link>
+            ) : (
+              <span>作者 {post.author_id.slice(0, 8)}</span>
+            )}
           </span>
         </div>
 

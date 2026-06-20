@@ -14,6 +14,7 @@ export interface PostData {
   tags: string[];
   status: string;
   author_id: string;
+  author_username: string | null;
   created_at: string;
   updated_at: string;
   comment_count: number;
@@ -30,6 +31,7 @@ export interface PostListItem {
   tags: string[];
   status: string;
   author_id: string;
+  author_username: string | null;
   created_at: string;
   updated_at: string;
   comment_count: number;

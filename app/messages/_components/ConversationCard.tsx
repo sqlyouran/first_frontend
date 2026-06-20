@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { User } from "lucide-react";
 import { type ConversationItem } from "@/lib/api/messages";
 import { formatRelativeTime } from "@/lib/utils";
@@ -24,11 +23,10 @@ export function ConversationCard({ conversation }: ConversationCardProps) {
       {/* Avatar */}
       <div className="relative size-12 shrink-0 overflow-hidden rounded-full bg-slate-200">
         {!isDeleted && other_user.avatar_url ? (
-          <Image
+          <img
             src={other_user.avatar_url}
             alt={other_user.nickname}
-            fill
-            className="object-cover"
+            className="absolute inset-0 size-full object-cover"
             onError={(e) => {
               (e.target as HTMLImageElement).style.display = "none";
             }}

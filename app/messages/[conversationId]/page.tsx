@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, AlertCircle, MessageCircle, User } from "lucide-react";
-import Image from "next/image";
 import { toast } from "sonner";
 import {
   fetchConversation,
@@ -209,11 +208,10 @@ export default function ConversationPage() {
             <div className="flex items-center gap-2">
               <div className="relative size-8 shrink-0 overflow-hidden rounded-full bg-slate-200">
                 {otherUser.avatar_url && !otherUser.deleted ? (
-                  <Image
+                  <img
                     src={otherUser.avatar_url}
                     alt={otherUser.nickname}
-                    fill
-                    className="object-cover"
+                    className="absolute inset-0 size-full object-cover"
                   />
                 ) : (
                   <div className="flex size-full items-center justify-center">
