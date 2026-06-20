@@ -56,7 +56,7 @@ export async function fetchNotifications(
   size: number = 20
 ): Promise<ApiResponse<NotificationData>> {
   try {
-    const res = await fetch(
+    const res = await authFetch(
       `/api/notifications?page=${page}&size=${size}`
     );
 
@@ -99,7 +99,7 @@ export async function fetchUnreadCount(): Promise<
   ApiResponse<UnreadCountData>
 > {
   try {
-    const res = await fetch("/api/notifications/unread-count");
+    const res = await authFetch("/api/notifications/unread-count");
 
     if (res.status >= 500) return serverError(res.status);
     return parseResponse<UnreadCountData>(res);
