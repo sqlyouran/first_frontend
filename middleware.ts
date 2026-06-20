@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const AUTH_PAGES = ["/login", "/register"];
-const PROTECTED_PAGES = ["/posts/create", "/profile"];
+const PROTECTED_PAGES = ["/posts/create", "/profile", "/notifications"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
