@@ -17,7 +17,12 @@ vi.mock("next/link", () => ({
   ),
 }));
 
+vi.mock("next/image", () => ({
+  default: (props: Record<string, unknown>) => <img alt={String(props.alt ?? "")} />,
+}));
+
 vi.mock("@/lib/api/messages", () => ({
+  fetchConversation: vi.fn(),
   fetchMessages: vi.fn(),
   sendMessage: vi.fn(),
   markConversationRead: vi.fn(),
@@ -31,10 +36,11 @@ vi.mock("@/lib/stores/messages", () => ({
   useMessagesStore: vi.fn(),
 }));
 
-import { fetchMessages, sendMessage, markConversationRead } from "@/lib/api/messages";
+import { fetchConversation, fetchMessages, sendMessage, markConversationRead } from "@/lib/api/messages";
 import { useAuthStore } from "@/lib/stores/auth";
 import { useMessagesStore } from "@/lib/stores/messages";
 
+const fetchConversationMock = vi.mocked(fetchConversation);
 const fetchMessagesMock = vi.mocked(fetchMessages);
 const sendMessageMock = vi.mocked(sendMessage);
 const markReadMock = vi.mocked(markConversationRead);
@@ -42,17 +48,6 @@ const useAuthStoreMock = vi.mocked(useAuthStore);
 const useMessagesStoreMock = vi.mocked(useMessagesStore);
 
 describe("ConversationPage", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    useAuthStoreMock.mockImplementation(((selector: any) =>
-      selector({ user: { id: "user1" }, isAuthenticated: true })) as any);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    useMessagesStoreMock.mockImplementation(((selector: any) =>
-      selector({ totalUnread: 5, decrementUnread: vi.fn(), fetchTotalUnread: vi.fn() })) as any);
-    markReadMock.mockResolvedValue({ status: 200, data: { marked_count: 3, request_id: "r1" } });
-  });
-
   const otherUser: OtherUser = {
     user_id: "user2",
     nickname: "Alice",
@@ -78,10 +73,25 @@ describe("ConversationPage", () => {
     },
   ];
 
+  beforeEach(() => {
+    vi.clearAllMocks();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    useAuthStoreMock.mockImplementation(((selector: any) =>
+      selector({ user: { id: "user1" }, isAuthenticated: true })) as any);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    useMessagesStoreMock.mockImplementation(((selector: any) =>
+      selector({ totalUnread: 5, decrementUnread: vi.fn(), fetchTotalUnread: vi.fn() })) as any);
+    markReadMock.mockResolvedValue({ status: 200, data: { marked_count: 3, request_id: "r1" } });
+    fetchConversationMock.mockResolvedValue({
+      status: 200,
+      data: { conversation_id: "conv1", other_user: otherUser, request_id: "r1" },
+    });
+  });
+
   it("shows loading skeletons initially", () => {
     fetchMessagesMock.mockReturnValue(new Promise(() => {}));
 
-    render(<ConversationPage otherUser={otherUser} initialMessages={[]} initialTotal={0} conversationId="conv1" />);
+    render(<ConversationPage />);
 
     const skeletons = screen.getAllByTestId("message-skeleton");
     expect(skeletons.length).toBeGreaterThanOrEqual(3);
@@ -90,57 +100,61 @@ describe("ConversationPage", () => {
   it("renders messages in chronological order", async () => {
     fetchMessagesMock.mockResolvedValue({
       status: 200,
-      data: { items: messages, total: 2, page: 1, size: 20, request_id: "r1" },
+      data: { items: messages, total: 2, page: 1, size: 50, request_id: "r1" },
     });
 
-    render(<ConversationPage otherUser={otherUser} initialMessages={messages} initialTotal={2} conversationId="conv1" />);
+    render(<ConversationPage />);
 
-    expect(screen.getByText("Hi there!")).toBeInTheDocument();
-    expect(screen.getByText("Hello Alice!")).toBeInTheDocument();
+    expect(await screen.findByText("Hi there!")).toBeInTheDocument();
+    expect(await screen.findByText("Hello Alice!")).toBeInTheDocument();
   });
 
-  it("shows header with other user info", () => {
+  it("shows header with other user info", async () => {
     fetchMessagesMock.mockResolvedValue({
       status: 200,
-      data: { items: messages, total: 2, page: 1, size: 20, request_id: "r1" },
+      data: { items: messages, total: 2, page: 1, size: 50, request_id: "r1" },
     });
 
-    render(<ConversationPage otherUser={otherUser} initialMessages={messages} initialTotal={2} conversationId="conv1" />);
+    render(<ConversationPage />);
 
-    expect(screen.getByText("Alice")).toBeInTheDocument();
-    expect(screen.getByText("@alice")).toBeInTheDocument();
+    expect(await screen.findByText("Alice")).toBeInTheDocument();
+    expect(await screen.findByText("@alice")).toBeInTheDocument();
   });
 
   it("shows empty state with first message prompt", async () => {
     fetchMessagesMock.mockResolvedValue({
       status: 200,
-      data: { items: [], total: 0, page: 1, size: 20, request_id: "r1" },
+      data: { items: [], total: 0, page: 1, size: 50, request_id: "r1" },
     });
 
-    render(<ConversationPage otherUser={otherUser} initialMessages={[]} initialTotal={0} conversationId="conv1" />);
+    render(<ConversationPage />);
 
     expect(await screen.findByText(/Send the first message/)).toBeInTheDocument();
   });
 
   it("shows error state on API failure", async () => {
+    fetchConversationMock.mockResolvedValue({
+      status: 500,
+      error: { request_id: "r1", error_code: "server_error", message: "Server error" },
+    });
     fetchMessagesMock.mockResolvedValue({
       status: 500,
       error: { request_id: "r1", error_code: "server_error", message: "Server error" },
     });
 
-    render(<ConversationPage otherUser={otherUser} initialMessages={[]} initialTotal={0} conversationId="conv1" />);
+    render(<ConversationPage />);
 
-    expect(await screen.findByText(/Failed to load messages/)).toBeInTheDocument();
+    expect(await screen.findByText(/Failed to load/)).toBeInTheDocument();
     expect(screen.getByText("Retry")).toBeInTheDocument();
   });
 
   it("calls markConversationRead on mount", async () => {
     fetchMessagesMock.mockResolvedValue({
       status: 200,
-      data: { items: messages, total: 2, page: 1, size: 20, request_id: "r1" },
+      data: { items: messages, total: 2, page: 1, size: 50, request_id: "r1" },
     });
 
-    render(<ConversationPage otherUser={otherUser} initialMessages={messages} initialTotal={2} conversationId="conv1" />);
+    render(<ConversationPage />);
 
     await waitFor(() => {
       expect(markReadMock).toHaveBeenCalledWith("conv1");

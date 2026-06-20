@@ -8,12 +8,13 @@ type MessageInputStatus = "idle" | "typing" | "sending" | "disabled" | "rate_lim
 interface MessageInputProps {
   onSend: (content: string) => void;
   status: MessageInputStatus;
+  partnerDeleted?: boolean;
 }
 
 const MAX_CHARS = 2000;
 const CHAR_COUNT_THRESHOLD = 1800;
 
-export function MessageInput({ onSend, status }: MessageInputProps) {
+export function MessageInput({ onSend, status, partnerDeleted }: MessageInputProps) {
   const [content, setContent] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isDisabled = status === "disabled" || status === "sending" || status === "rate_limited";
@@ -59,6 +60,9 @@ export function MessageInput({ onSend, status }: MessageInputProps) {
   };
 
   const showCharCount = content.length >= CHAR_COUNT_THRESHOLD;
+  const placeholder = status === "disabled" && partnerDeleted
+    ? "Cannot send messages to this user"
+    : "Type a message...";
 
   return (
     <div className="border-t border-slate-200 bg-white px-4 py-3">
@@ -74,21 +78,23 @@ export function MessageInput({ onSend, status }: MessageInputProps) {
           value={content}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
-          placeholder="Type a message..."
+          placeholder={placeholder}
           disabled={isDisabled}
           rows={1}
           className="flex-1 resize-none rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm leading-6 text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
           style={{ minHeight: "40px", maxHeight: "120px" }}
         />
-        <button
-          type="button"
-          onClick={handleSendClick}
-          disabled={isDisabled || !content.trim()}
-          aria-label="Send message"
-          className="flex size-10 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <Send className="size-4" />
-        </button>
+        {!(status === "disabled" && partnerDeleted) && (
+          <button
+            type="button"
+            onClick={handleSendClick}
+            disabled={isDisabled || !content.trim()}
+            aria-label="Send message"
+            className="flex size-10 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Send className="size-4" />
+          </button>
+        )}
       </div>
 
       {showCharCount && (

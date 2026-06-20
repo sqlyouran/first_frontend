@@ -245,7 +245,7 @@ describe("messages API", () => {
 
   describe("fetchUnreadCount", () => {
     it("sends GET /api/conversations/unread-count", async () => {
-      const data = { request_id: "r1", unread_count: 5 };
+      const data = { request_id: "r1", count: 5 };
       authFetchMock.mockResolvedValue(
         new Response(JSON.stringify(data), { status: 200 })
       );
@@ -253,7 +253,7 @@ describe("messages API", () => {
       const result = await fetchUnreadCount();
 
       expect(result.status).toBe(200);
-      expect(result.data?.unread_count).toBe(5);
+      expect(result.data?.count).toBe(5);
       expect(authFetchMock).toHaveBeenCalledWith(
         "/api/conversations/unread-count"
       );

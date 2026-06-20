@@ -85,7 +85,7 @@ describe("SendMessageButton", () => {
     const { toast } = await import("sonner");
     createConversationMock.mockResolvedValue({
       status: 422,
-      error: { request_id: "r1", error_code: "recipient_unavailable", message: "User deleted" },
+      error: { request_id: "r1", error_code: "user_unavailable", message: "User deleted" },
     });
 
     render(<SendMessageButton recipientUsername="alice" />);

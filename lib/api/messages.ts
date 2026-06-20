@@ -52,12 +52,18 @@ export interface MessageData {
 }
 
 export interface UnreadCountData {
-  unread_count: number;
+  count: number;
   request_id: string;
 }
 
 export interface MarkReadData {
   marked_count: number;
+  request_id: string;
+}
+
+export interface ConversationDetail {
+  conversation_id: string;
+  other_user: OtherUser;
   request_id: string;
 }
 
@@ -93,6 +99,19 @@ export async function fetchConversations(
 
     if (res.status >= 500) return serverError(res.status);
     return parseResponse<ConversationData>(res);
+  } catch {
+    return networkError();
+  }
+}
+
+export async function fetchConversation(
+  conversationId: string
+): Promise<ApiResponse<ConversationDetail>> {
+  try {
+    const res = await authFetch(`/api/conversations/${conversationId}`);
+
+    if (res.status >= 500) return serverError(res.status);
+    return parseResponse<ConversationDetail>(res);
   } catch {
     return networkError();
   }

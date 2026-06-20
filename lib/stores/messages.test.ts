@@ -45,7 +45,7 @@ describe("useMessagesStore", () => {
     it("fetches unread count from API and updates state", async () => {
       fetchUnreadCountMock.mockResolvedValue({
         status: 200,
-        data: { unread_count: 7, request_id: "r1" },
+        data: { count: 7, request_id: "r1" },
       });
 
       await useMessagesStore.getState().fetchTotalUnread();

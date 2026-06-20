@@ -21,7 +21,7 @@ export const useMessagesStore = create<MessagesState>((set, get) => ({
   fetchTotalUnread: async () => {
     const res = await fetchUnreadCount();
     if (res.status === 200 && res.data) {
-      set({ totalUnread: res.data.unread_count });
+      set({ totalUnread: res.data.count });
     }
   },
 }));

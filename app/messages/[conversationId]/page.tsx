@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, AlertCircle, MessageCircle, User } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
 import {
+  fetchConversation,
   fetchMessages,
   sendMessage,
   markConversationRead,
@@ -20,7 +22,7 @@ import { DateSeparator } from "../_components/DateSeparator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 50;
 
 type InputStatus = "idle" | "typing" | "sending" | "disabled" | "rate_limited";
 
@@ -31,60 +33,61 @@ function shouldShowDateSeparator(messages: MessageItem[], index: number): boolea
   return prevDate !== currDate;
 }
 
-interface ConversationPageProps {
-  otherUser: OtherUser;
-  initialMessages: MessageItem[];
-  initialTotal: number;
-  conversationId: string;
-}
+export default function ConversationPage() {
+  const params = useParams<{ conversationId: string }>();
+  const conversationId = params.conversationId;
 
-export default function ConversationPage({
-  otherUser,
-  initialMessages,
-  initialTotal,
-  conversationId,
-}: ConversationPageProps) {
   const userId = useAuthStore((s) => s.user?.id);
   const decrementUnread = useMessagesStore((s) => s.decrementUnread);
 
-  const [messages, setMessages] = useState<MessageItem[]>(initialMessages);
-  const [total, setTotal] = useState(initialTotal);
-  const [loading, setLoading] = useState(initialMessages.length === 0);
+  const [otherUser, setOtherUser] = useState<OtherUser | null>(null);
+  const [messages, setMessages] = useState<MessageItem[]>([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [inputStatus, setInputStatus] = useState<InputStatus>(
-    otherUser.deleted ? "disabled" : "idle"
-  );
+  const [inputStatus, setInputStatus] = useState<InputStatus>("idle");
   const [page, setPage] = useState(1);
   const hasMore = messages.length < total;
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const topSentinelRef = useRef<HTMLDivElement>(null);
-  const initialLoaded = useRef(initialMessages.length > 0);
 
-  // Load messages on mount if no initial data
+  // Load conversation detail + messages on mount
   useEffect(() => {
-    if (initialLoaded.current) return;
-
-    const loadInitial = async () => {
+    const load = async () => {
       setLoading(true);
-      const res = await fetchMessages(conversationId, 1, PAGE_SIZE);
-      if (res.status === 200 && res.data) {
-        const sorted = [...res.data.items].reverse();
+      const [convRes, msgRes] = await Promise.all([
+        fetchConversation(conversationId),
+        fetchMessages(conversationId, 1, PAGE_SIZE),
+      ]);
+
+      if (convRes.status === 200 && convRes.data) {
+        setOtherUser(convRes.data.other_user);
+        setInputStatus(convRes.data.other_user.deleted ? "disabled" : "idle");
+      } else {
+        setError(convRes.error?.message ?? "Failed to load conversation");
+        setLoading(false);
+        return;
+      }
+
+      if (msgRes.status === 200 && msgRes.data) {
+        const sorted = [...msgRes.data.items].reverse();
         setMessages(sorted);
-        setTotal(res.data.total);
+        setTotal(msgRes.data.total);
         setPage(1);
       } else {
-        setError(res.error?.message ?? "Failed to load messages");
+        setError(msgRes.error?.message ?? "Failed to load messages");
       }
       setLoading(false);
     };
 
-    loadInitial();
+    load();
   }, [conversationId]);
 
   // Mark as read on mount
   useEffect(() => {
+    if (!conversationId) return;
     markConversationRead(conversationId).then((res) => {
       if (res.status === 200 && res.data) {
         decrementUnread(res.data.marked_count);
@@ -155,27 +158,33 @@ export default function ConversationPage({
       setMessages((prev) => prev.filter((m) => m.message_id !== tempId));
       setInputStatus("rate_limited");
       toast.error("Too many messages. Please wait a moment.");
-      setTimeout(() => setInputStatus(otherUser.deleted ? "disabled" : "idle"), 5000);
+      setTimeout(() => setInputStatus(otherUser?.deleted ? "disabled" : "idle"), 30000);
       return;
     } else {
       setMessages((prev) => prev.filter((m) => m.message_id !== tempId));
       toast.error("Failed to send message. Please try again.");
     }
 
-    setInputStatus(otherUser.deleted ? "disabled" : "idle");
+    setInputStatus(otherUser?.deleted ? "disabled" : "idle");
   };
 
   const handleRetry = async () => {
     setLoading(true);
     setError(null);
-    const res = await fetchMessages(conversationId, 1, PAGE_SIZE);
-    if (res.status === 200 && res.data) {
-      const sorted = [...res.data.items].reverse();
+    const [convRes, msgRes] = await Promise.all([
+      fetchConversation(conversationId),
+      fetchMessages(conversationId, 1, PAGE_SIZE),
+    ]);
+    if (convRes.status === 200 && convRes.data) {
+      setOtherUser(convRes.data.other_user);
+    }
+    if (msgRes.status === 200 && msgRes.data) {
+      const sorted = [...msgRes.data.items].reverse();
       setMessages(sorted);
-      setTotal(res.data.total);
+      setTotal(msgRes.data.total);
       setPage(1);
     } else {
-      setError(res.error?.message ?? "Failed to load messages");
+      setError(msgRes.error?.message ?? "Failed to load messages");
     }
     setLoading(false);
   };
@@ -183,6 +192,10 @@ export default function ConversationPage({
   const sortedMessages = [...messages].sort(
     (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
   );
+
+  // Header user info (fallback while loading)
+  const displayName = otherUser?.deleted ? "Deleted user" : (otherUser?.nickname ?? "");
+  const displayUsername = otherUser?.username ?? "";
 
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-slate-50 to-white">
@@ -192,30 +205,38 @@ export default function ConversationPage({
           <Link href="/messages" aria-label="Back to messages" className="flex items-center text-slate-600 hover:text-slate-900">
             <ArrowLeft className="size-5" />
           </Link>
-          <div className="flex items-center gap-2">
-            <div className="relative size-8 shrink-0 overflow-hidden rounded-full bg-slate-200">
-              {otherUser.avatar_url && !otherUser.deleted ? (
-                <Image
-                  src={otherUser.avatar_url}
-                  alt={otherUser.nickname}
-                  fill
-                  className="object-cover"
-                />
-              ) : (
-                <div className="flex size-full items-center justify-center">
-                  <User className="size-4 text-slate-400" />
-                </div>
-              )}
+          {otherUser && (
+            <div className="flex items-center gap-2">
+              <div className="relative size-8 shrink-0 overflow-hidden rounded-full bg-slate-200">
+                {otherUser.avatar_url && !otherUser.deleted ? (
+                  <Image
+                    src={otherUser.avatar_url}
+                    alt={otherUser.nickname}
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="flex size-full items-center justify-center">
+                    <User className="size-4 text-slate-400" />
+                  </div>
+                )}
+              </div>
+              <div>
+                <p className={`text-sm font-medium ${otherUser.deleted ? "text-slate-400 italic" : "text-slate-900"}`}>
+                  {displayName}
+                </p>
+                {!otherUser.deleted && (
+                  <p className="text-xs text-slate-500">@{displayUsername}</p>
+                )}
+              </div>
             </div>
-            <div>
-              <p className={`text-sm font-medium ${otherUser.deleted ? "text-slate-400 italic" : "text-slate-900"}`}>
-                {otherUser.deleted ? "Deleted user" : otherUser.nickname}
-              </p>
-              {!otherUser.deleted && (
-                <p className="text-xs text-slate-500">@{otherUser.username}</p>
-              )}
+          )}
+          {loading && !otherUser && (
+            <div className="flex items-center gap-2">
+              <Skeleton className="size-8 rounded-full" />
+              <Skeleton className="h-4 w-24" />
             </div>
-          </div>
+          )}
         </div>
       </header>
 
@@ -289,7 +310,7 @@ export default function ConversationPage({
       {/* Input */}
       <div className="sticky bottom-0">
         <div className="mx-auto max-w-2xl px-8 sm:px-12 lg:px-16">
-          <MessageInput onSend={handleSend} status={inputStatus} />
+          <MessageInput onSend={handleSend} status={inputStatus} partnerDeleted={otherUser?.deleted} />
         </div>
       </div>
     </div>

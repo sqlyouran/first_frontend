@@ -78,6 +78,18 @@ describe("MessageInput", () => {
     expect(screen.getByText(/Too many messages/)).toBeInTheDocument();
   });
 
+  it("shows 'Cannot send' placeholder when partner is deleted", () => {
+    render(<MessageInput onSend={vi.fn()} status="disabled" partnerDeleted />);
+
+    expect(screen.getByPlaceholderText("Cannot send messages to this user")).toBeInTheDocument();
+  });
+
+  it("hides send button when partner is deleted", () => {
+    render(<MessageInput onSend={vi.fn()} status="disabled" partnerDeleted />);
+
+    expect(screen.queryByTestId("send-icon")).toBeNull();
+  });
+
   it("clears input after successful send", async () => {
     const handleSend = vi.fn();
     render(<MessageInput onSend={handleSend} status="idle" />);
