@@ -17,6 +17,7 @@ function formatBadge(count: number): string | null {
 export function NotificationBell() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const unreadCount = useNotificationStore((s) => s.unreadCount);
+  const isLoaded = useNotificationStore((s) => s.isLoaded);
   const fetchUnreadCount = useNotificationStore((s) => s.fetchUnreadCount);
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -68,7 +69,7 @@ export function NotificationBell() {
       className="relative inline-flex items-center justify-center rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700"
       aria-label={`通知${badge ? `，${unreadCount} 条未读` : ""}`}
     >
-      <Bell className="h-5 w-5" />
+      <Bell className={`h-5 w-5 ${!isLoaded ? "animate-pulse" : ""}`} />
       {badge && (
         <span
           data-badge
