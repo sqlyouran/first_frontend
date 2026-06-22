@@ -4,6 +4,8 @@ import Link from "next/link";
 import UserDropdown from "@/app/_components/UserDropdown";
 import { NotificationBell } from "@/app/_components/NotificationBell";
 import { MessageIcon } from "@/app/_components/MessageIcon";
+import WeatherPopover from "@/app/_components/WeatherPopover";
+import ExchangeRatePopover from "@/app/_components/ExchangeRatePopover";
 import { Compass } from "lucide-react";
 
 export default function SiteHeader() {
@@ -18,6 +20,8 @@ export default function SiteHeader() {
           Wanderchina
         </Link>
         <div className="flex items-center gap-1">
+          <WeatherPopover />
+          <ExchangeRatePopover />
           <NotificationBell />
           <MessageIcon />
           <UserDropdown />
