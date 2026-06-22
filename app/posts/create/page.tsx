@@ -19,7 +19,7 @@ export default function CreatePostPage() {
     const res = await createPost(data);
 
     if (res.status === 201 && res.data) {
-      router.push(`/posts/${res.data.id}`);
+      router.push(`/posts/${res.data.slug}`);
       return;
     }
 

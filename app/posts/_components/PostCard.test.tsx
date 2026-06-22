@@ -18,6 +18,7 @@ const samplePost: PostListItem = {
   tags: ["travel", "food", "culture"],
   status: "published",
   author_id: "user-uuid-123",
+  author_username: "testuser",
   created_at: "2024-06-01T12:00:00Z",
   updated_at: "2024-06-01T12:00:00Z",
   comment_count: 3,
@@ -71,28 +72,25 @@ describe("PostCard", () => {
     expect(link).toHaveAttribute("href", "/posts/my-travel-post-p1");
   });
 
-  it("renders interaction stats with non-zero values", () => {
-    render(<PostCard post={samplePost} />);
+  it("hides interaction stats row when all counts are zero", () => {
+    render(<PostCard post={{ ...samplePost, comment_count: 0, up_vote_count: 0, bookmark_count: 0 }} />);
+    // Entire stats row should not be rendered
+    expect(screen.queryByText("0")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("赞同")).not.toBeInTheDocument();
+  });
+
+  it("hides individual stat when its count is zero", () => {
+    render(<PostCard post={{ ...samplePost, comment_count: 0, up_vote_count: 8, bookmark_count: 0 }} />);
+    expect(screen.getByText("8")).toBeInTheDocument();
+    // comment_count=0 → comment icon not rendered
+    expect(screen.queryByText("0")).not.toBeInTheDocument();
+  });
+
+  it("shows all stats when all counts are non-zero", () => {
+    render(<PostCard post={{ ...samplePost, up_vote_count: 5, comment_count: 3, bookmark_count: 2 }} />);
     expect(screen.getByText("5")).toBeInTheDocument();
     expect(screen.getByText("3")).toBeInTheDocument();
     expect(screen.getByText("2")).toBeInTheDocument();
-  });
-
-  it("always shows upvote and comment counts, even when zero", () => {
-    render(<PostCard post={{ ...samplePost, comment_count: 0, up_vote_count: 0, bookmark_count: 0 }} />);
-    // Upvote and comment always show "0"
-    const zeros = screen.getAllByText("0");
-    expect(zeros).toHaveLength(2); // upvote + comment
-    // Bookmark hidden when zero
-    const bookmarkIcons = screen.queryAllByTestId("bookmark-icon");
-    expect(bookmarkIcons).toHaveLength(0);
-  });
-
-  it("shows upvote+comment always, bookmark only when non-zero", () => {
-    render(<PostCard post={{ ...samplePost, comment_count: 0, up_vote_count: 8, bookmark_count: 0 }} />);
-    expect(screen.getByText("8")).toBeInTheDocument();
-    // comment still shows "0"
-    expect(screen.getByText("0")).toBeInTheDocument();
   });
 });
 
