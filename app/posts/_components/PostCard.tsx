@@ -62,23 +62,29 @@ export function PostCard({ post }: PostCardProps) {
             </div>
           )}
 
-          {/* Interaction stats: upvote & comment always shown */}
-          <div className="mt-3 flex items-center gap-4 text-sm text-slate-500">
-            <span className="flex items-center gap-1">
-              <ThumbsUp className="h-3.5 w-3.5" />
-              {formatCount(post.up_vote_count) ?? "0"}
-            </span>
-            <span className="flex items-center gap-1">
-              <MessageCircle className="h-3.5 w-3.5" />
-              {formatCount(post.comment_count) ?? "0"}
-            </span>
-            {post.bookmark_count > 0 && (
-              <span className="flex items-center gap-1">
-                <Bookmark className="h-3.5 w-3.5" />
-                {formatCount(post.bookmark_count)}
-              </span>
-            )}
-          </div>
+          {/* Interaction stats: hide row when all zero; hide item when zero */}
+          {(post.up_vote_count > 0 || post.comment_count > 0 || post.bookmark_count > 0) && (
+            <div className="mt-3 flex items-center gap-4 text-sm text-slate-500">
+              {post.up_vote_count > 0 && (
+                <span className="flex items-center gap-1">
+                  <ThumbsUp className="h-3.5 w-3.5" />
+                  {formatCount(post.up_vote_count)}
+                </span>
+              )}
+              {post.comment_count > 0 && (
+                <span className="flex items-center gap-1">
+                  <MessageCircle className="h-3.5 w-3.5" />
+                  {formatCount(post.comment_count)}
+                </span>
+              )}
+              {post.bookmark_count > 0 && (
+                <span className="flex items-center gap-1">
+                  <Bookmark className="h-3.5 w-3.5" />
+                  {formatCount(post.bookmark_count)}
+                </span>
+              )}
+            </div>
+          )}
 
           {/* Meta */}
           <p className="mt-3 text-sm text-slate-400">
