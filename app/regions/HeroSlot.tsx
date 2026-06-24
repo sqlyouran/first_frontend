@@ -7,11 +7,11 @@ export default function HeroSlot() {
   return (
     <section
       data-region="hero"
-      className="relative h-[600px] bg-cover bg-center bg-slate-800"
+      className="relative min-h-[520px] h-[70vh] bg-cover bg-center bg-slate-800"
       style={{ backgroundImage: `url(${hero.backgroundImage})` }}
     >
       <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent" />
-      <div className="relative z-10 mx-auto flex h-full max-w-5xl flex-col items-start justify-center px-6">
+      <div className="relative z-10 mx-auto flex h-full max-w-6xl flex-col items-start justify-center px-8 sm:px-12 lg:px-16">
         <h1 className="mb-4 text-5xl font-bold text-white lg:text-6xl">
           {hero.title}
         </h1>
@@ -26,6 +26,12 @@ export default function HeroSlot() {
             <Search className="h-5 w-5" />
           </Button>
         </div>
+        <a
+          href={hero.ctaHref}
+          className="mt-4 inline-block rounded-md bg-blue-700 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-800"
+        >
+          {hero.ctaLabel}
+        </a>
       </div>
     </section>
   );

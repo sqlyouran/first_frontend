@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { render } from "@testing-library/react";
+import { render, within } from "@testing-library/react";
 import { readFileSync } from "fs";
 import { join } from "path";
 import CityGridSlot from "./CityGridSlot";
@@ -31,7 +31,7 @@ describe("CityGridSlot", () => {
     });
   });
 
-  it("each card has image container, heading, and badge", () => {
+  it("each card has image container with overlay badge and heading", () => {
     const { container } = render(<CityGridSlot />);
     const anchors = container.querySelectorAll(
       'section[data-region="city-grid"] a',
@@ -40,10 +40,10 @@ describe("CityGridSlot", () => {
       // image container with aspect ratio and bg-cover
       const imgContainer = a.querySelector('[class*="aspect-"][class*="bg-cover"]');
       expect(imgContainer).not.toBeNull();
+      // bestSeason badge is INSIDE the image container (overlay)
+      const badge = imgContainer!.querySelector("span");
+      expect(badge).not.toBeNull();
       expect(a.querySelector("h3")).not.toBeNull();
-      // badge element (span with season text)
-      const spans = a.querySelectorAll("span");
-      expect(spans.length).toBeGreaterThanOrEqual(1);
     });
   });
 
@@ -66,6 +66,14 @@ describe("CityGridSlot", () => {
       expect(validSeasons).toContain(item.bestSeason);
       expect(item.image).toMatch(/^https:\/\/picsum\.photos\//);
     });
+  });
+
+  it("section has background gradient class", () => {
+    const { container } = render(<CityGridSlot />);
+    const region = container.querySelector('[data-region="city-grid"]');
+    const className = region?.className ?? "";
+    expect(className).toContain("from-slate-50");
+    expect(className).toContain("to-white");
   });
 
   it("CityGridSlot.tsx does not import fetch or lib/backend", () => {

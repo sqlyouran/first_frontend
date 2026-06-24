@@ -3,6 +3,7 @@ import FeatureNavSlot from "./regions/FeatureNavSlot";
 import CityGridSlot from "./regions/CityGridSlot";
 import HotPostsSlot from "./regions/HotPostsSlot";
 import HotSpotsSlot from "./regions/HotSpotsSlot";
+import AiLauncherSlot from "./regions/AiLauncherSlot";
 
 export default function Home() {
   return (
@@ -12,6 +13,7 @@ export default function Home() {
       <CityGridSlot />
       <HotPostsSlot />
       <HotSpotsSlot />
+      <AiLauncherSlot />
     </>
   );
 }

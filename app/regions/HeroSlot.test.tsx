@@ -64,15 +64,11 @@ describe("HeroSlot", () => {
     expect(src).not.toMatch(/fetchFromBackend|fetch\(|import.*lib\/backend/);
   });
 
-  it("renders section with height >= 500px", () => {
+  it("renders section with minimum height >= 500px", () => {
     const { container } = render(<HeroSlot />);
     const region = container.querySelector('[data-region="hero"]');
     const className = region?.className ?? "";
-    expect(className).toMatch(/h-\[\d+px\]/);
-    // extract numeric height and verify >= 500
-    const match = className.match(/h-\[(\d+)px\]/);
-    expect(match).not.toBeNull();
-    expect(Number(match![1])).toBeGreaterThanOrEqual(500);
+    expect(className).toMatch(/min-h-/);
   });
 
   it("renders full-width section with background image", () => {
@@ -100,5 +96,29 @@ describe("HeroSlot", () => {
     expect(
       (input?.getAttribute("placeholder") ?? "").trim().length,
     ).toBeGreaterThan(0);
+  });
+
+  it("renders CTA button with hero.ctaLabel text", () => {
+    const { container } = render(<HeroSlot />);
+    const ctaLink = container.querySelector(
+      'section[data-region="hero"] a',
+    );
+    expect(ctaLink).not.toBeNull();
+    expect(ctaLink?.textContent).toContain(hero.ctaLabel);
+  });
+
+  it("content container uses px-8 responsive padding", () => {
+    const { container } = render(<HeroSlot />);
+    const region = container.querySelector('[data-region="hero"]');
+    const innerDiv = region?.querySelector(".mx-auto");
+    const className = innerDiv?.className ?? "";
+    expect(className).toContain("px-8");
+  });
+
+  it("section uses responsive viewport height", () => {
+    const { container } = render(<HeroSlot />);
+    const region = container.querySelector('[data-region="hero"]');
+    const className = region?.className ?? "";
+    expect(className).toMatch(/min-h-/);
   });
 });

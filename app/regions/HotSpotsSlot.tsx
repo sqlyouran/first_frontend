@@ -4,11 +4,11 @@ import { Badge } from "@/components/ui/badge";
 
 export default function HotSpotsSlot() {
   return (
-    <section data-region="hot-spots">
-      <div className="mx-auto max-w-6xl px-6">
+    <section data-region="hot-spots" className="bg-white">
+      <div className="mx-auto max-w-6xl px-8 sm:px-12 lg:px-16">
         <div className="mb-8 flex items-center justify-between">
           <h2 className="text-3xl font-bold text-slate-900 lg:text-4xl">
-            Off-the-Beaten-Path Spots
+            Hidden Gems
           </h2>
           <a
             href="/spots/ranking"

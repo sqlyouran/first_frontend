@@ -77,4 +77,21 @@ describe("HotPostsSlot", () => {
     );
     expect(src).not.toMatch(/fetchFromBackend|fetch\(|import.*lib\/backend/);
   });
+
+  it("featured card image has gradient overlay", () => {
+    const { container } = render(<HotPostsSlot />);
+    const firstAnchor = container.querySelector(
+      '[data-region="hot-posts"] > div > .grid > a',
+    );
+    const overlay = firstAnchor?.querySelector('[class*="from-transparent"]');
+    expect(overlay).not.toBeNull();
+  });
+
+  it("small cards use aspect-square image container", () => {
+    const { container } = render(<HotPostsSlot />);
+    const aspectSquares = container.querySelectorAll(
+      '[data-region="hot-posts"] [class*="aspect-square"]',
+    );
+    expect(aspectSquares.length).toBeGreaterThanOrEqual(2);
+  });
 });

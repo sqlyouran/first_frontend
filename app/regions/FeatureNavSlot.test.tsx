@@ -19,9 +19,10 @@ describe("FeatureNavSlot", () => {
       'section[data-region="feature-nav"] a',
     );
     expect(anchors.length).toBe(4);
-    const labels = Array.from(anchors).map((a) =>
-      (a.textContent ?? "").trim(),
-    );
+    const labels = Array.from(anchors).map((a) => {
+      const span = a.querySelector("span");
+      return (span?.textContent ?? "").trim();
+    });
     expect(labels).toEqual(["Cities", "Stories", "Hidden Spots", "Plan with AI"]);
   });
 
@@ -73,6 +74,27 @@ describe("FeatureNavSlot", () => {
       expect(item.label.trim().length).toBeGreaterThan(0);
       expect(item.href).toBe("#");
       expect(validIcons).toContain(item.icon);
+    });
+  });
+
+  it("each chip shows description text", () => {
+    const { container } = render(<FeatureNavSlot />);
+    const anchors = container.querySelectorAll(
+      'section[data-region="feature-nav"] a',
+    );
+    const descriptions = featureNavItems.map((item) => item.description);
+    descriptions.forEach((desc) => {
+      expect(container.textContent).toContain(desc);
+    });
+  });
+
+  it("each chip has border-l-4 class for hover feedback", () => {
+    const { container } = render(<FeatureNavSlot />);
+    const anchors = container.querySelectorAll(
+      'section[data-region="feature-nav"] a',
+    );
+    anchors.forEach((a) => {
+      expect(a.className).toContain("border-l-4");
     });
   });
 

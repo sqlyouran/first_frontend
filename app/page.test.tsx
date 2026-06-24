@@ -19,7 +19,7 @@ import RootLayout from "./layout";
 const PageAny = Page as unknown as () => ReactElement;
 
 describe("homepage shell - page", () => {
-  it("renders 5 regions in document order", () => {
+  it("renders 6 regions in document order", () => {
     const { container } = render(<PageAny />);
     const regions = container.querySelectorAll("[data-region]");
     const names = Array.from(regions).map((r) => r.getAttribute("data-region"));
@@ -29,12 +29,13 @@ describe("homepage shell - page", () => {
       "city-grid",
       "hot-posts",
       "hot-spots",
+      "ai-launcher",
     ]);
   });
 
-  it("does not render ai-launcher in page", () => {
+  it("renders ai-launcher as last region in page", () => {
     const { container } = render(<PageAny />);
-    expect(container.querySelector('[data-region="ai-launcher"]')).toBeNull();
+    expect(container.querySelector('[data-region="ai-launcher"]')).not.toBeNull();
   });
 });
 
@@ -47,7 +48,7 @@ describe("homepage shell - SSR integration proxy", () => {
     const html = renderToString(tree as React.ReactElement);
 
     const regionMatches = html.match(/data-region="[^"]+"/g) ?? [];
-    expect(regionMatches.length).toBe(6);
+    expect(regionMatches.length).toBe(7);
   });
 
   it("SSR output contains ai-launcher after 5 page regions", () => {

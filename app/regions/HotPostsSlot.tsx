@@ -6,7 +6,7 @@ export default function HotPostsSlot() {
 
   return (
     <section data-region="hot-posts" className="bg-slate-50">
-      <div className="mx-auto max-w-6xl px-6">
+      <div className="mx-auto max-w-6xl px-8 sm:px-12 lg:px-16">
         <h2 className="mb-8 text-3xl font-bold text-slate-900 lg:text-4xl">
           Stories from the Road
         </h2>
@@ -15,10 +15,12 @@ export default function HotPostsSlot() {
           <a href={featured.href} className="md:col-span-2">
             <Card className="h-full overflow-hidden transition-shadow hover:shadow-lg">
               <div
-                className="aspect-[16/9] bg-cover bg-center bg-slate-100"
+                className="relative aspect-[16/9] bg-cover bg-center bg-slate-100"
                 style={{ backgroundImage: `url(${featured.image})` }}
                 aria-hidden="true"
-              />
+              >
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/40" aria-hidden="true" />
+              </div>
               <div className="p-6">
                 <h3 className="mb-2 text-2xl font-bold text-slate-900">
                   {featured.title}
@@ -37,7 +39,7 @@ export default function HotPostsSlot() {
                 <Card className="overflow-hidden transition-shadow hover:shadow-lg">
                   <div className="flex gap-4 p-4">
                     <div
-                      className="h-24 w-24 flex-shrink-0 rounded bg-cover bg-center bg-slate-100"
+                      className="aspect-square w-24 flex-shrink-0 overflow-hidden rounded bg-cover bg-center bg-slate-100"
                       style={{ backgroundImage: `url(${item.image})` }}
                       aria-hidden="true"
                     />

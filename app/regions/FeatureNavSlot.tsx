@@ -13,10 +13,11 @@ export default function FeatureNavSlot() {
             <a
               key={item.label}
               href={item.href}
-              className="flex flex-col items-center gap-2 rounded-lg bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+              className="flex flex-col items-center gap-2 rounded-lg border-l-4 border-l-transparent bg-white p-6 shadow-sm transition-shadow hover:border-l-blue-700 hover:shadow-md"
             >
               <Icon className="h-8 w-8 text-blue-700" />
               <span className="font-medium text-slate-900">{item.label}</span>
+              <span className="text-center text-sm text-slate-500">{item.description}</span>
             </a>
           );
         })}

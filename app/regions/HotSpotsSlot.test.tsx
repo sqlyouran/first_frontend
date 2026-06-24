@@ -89,6 +89,18 @@ describe("HotSpotsSlot", () => {
     const { container } = render(<HotSpotsSlot />);
     const seeAllLink = container.querySelector('a[href="/spots/ranking"]');
     expect(seeAllLink).not.toBeNull();
-    expect(seeAllLink?.textContent?.trim()).toBe("See all →");
+    expect(seeAllLink?.textContent?.trim()).toBe("See all \u2192");
+  });
+
+  it('section heading is "Hidden Gems"', () => {
+    const { container } = render(<HotSpotsSlot />);
+    const h2 = container.querySelector('section[data-region="hot-spots"] h2');
+    expect(h2?.textContent?.trim()).toBe("Hidden Gems");
+  });
+
+  it('section has bg-white class', () => {
+    const { container } = render(<HotSpotsSlot />);
+    const region = container.querySelector('[data-region="hot-spots"]');
+    expect(region?.className ?? "").toContain("bg-white");
   });
 });
