@@ -1,12 +1,14 @@
 "use client";
 
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080";
+
 export interface AiMessage {
   role: "user" | "assistant";
   content: string;
 }
 
 export async function createConversation(): Promise<{ id: string }> {
-  const res = await fetch("/api/ai/conversations", { method: "POST" });
+  const res = await fetch(`${BACKEND_URL}/api/ai/conversations`, { method: "POST" });
   const body = await res.json();
   return { id: body.id };
 }
@@ -19,7 +21,7 @@ export async function streamChat(
   onError: (message: string) => void,
 ): Promise<void> {
   try {
-    const res = await fetch("/api/ai/chat", {
+    const res = await fetch(`${BACKEND_URL}/api/ai/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ conversation_id: conversationId, message }),
