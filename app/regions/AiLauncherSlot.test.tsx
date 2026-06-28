@@ -1,8 +1,16 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { render } from "@testing-library/react";
 import { readFileSync } from "fs";
 import { join } from "path";
 import userEvent from "@testing-library/user-event";
+
+// Mock AiChatPanel to avoid store dependencies in launcher tests
+vi.mock("@/app/_components/AiChatPanel", () => ({
+  AiChatPanel: () => (
+    <div data-testid="ai-chat-panel">Ask me anything about traveling in China!</div>
+  ),
+}));
+
 import AiLauncherSlot from "./AiLauncherSlot";
 import aiLauncher from "./aiLauncher.data";
 
@@ -106,7 +114,8 @@ describe("AiLauncherSlot", () => {
     // After click, sheet content should be visible
     const sheetContent = document.querySelector('[data-slot="sheet-content"]');
     expect(sheetContent).not.toBeNull();
-    // Sheet must contain placeholder text
-    expect(sheetContent!.textContent).toMatch(/AI Trip Planner|coming soon/i);
+    // Sheet must contain AiChatPanel
+    const chatPanel = sheetContent!.querySelector('[data-testid="ai-chat-panel"]');
+    expect(chatPanel).not.toBeNull();
   });
 });
